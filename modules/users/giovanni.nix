@@ -12,7 +12,6 @@ let
 in
 {
   imports = [
-    ./neovim
     ./packages
     ./runtimes-mise.nix
   ];
