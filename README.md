@@ -140,39 +140,40 @@ Build without switching (test configuration):
 sudo nixos-rebuild build --flake .#laptop
 ```
 
-### Legacy operational commands (migration pending)
+### Operational commands (mise-first)
 
-Host install/deploy and secret operations are still `just`-based while task migration is in progress.
+Use `mise` tasks for deploy and secrets workflows.
 
 ### Remote Deployment (from central laptop)
 
 Deploy to a remote machine:
 ```bash
-just deploy <hostname>
+HOST=<hostname> mise run deploy
 
 # Examples
-just deploy spark
-just deploy vps-alpha
+HOST=spark mise run deploy
+HOST=vps-alpha mise run deploy
 ```
 
 Pull latest changes and deploy:
 ```bash
-just pull-deploy <hostname>
+HOST=<hostname> mise run pull-deploy
 ```
 
 Sync changes made on remote machine back to central repo:
 ```bash
-just sync-remote <hostname>
+HOST=<hostname> mise run sync-remote
 # Then review, commit, and push
 ```
 
 ### Update flake inputs (update nixpkgs, home-manager, etc.)
 ```bash
-just update
+mise run update
 ```
 
-### List all available legacy operational commands
+### Legacy compatibility commands
 ```bash
+# Still available during migration window:
 just --list
 ```
 
@@ -213,18 +214,18 @@ This repository uses **sops-nix** with GPG and age for secrets encryption.
 
 ### Edit encrypted secrets:
 ```bash
-just secrets                              # Edit common secrets
-just secrets secrets/vps/knock-sequences.yaml  # Edit specific file
+mise run secrets                                     # Edit common secrets
+FILE=secrets/vps/knock-sequences.yaml mise run secrets
 ```
 
 ### View decrypted secrets:
 ```bash
-just secrets-view secrets/common/secrets.yaml
+FILE=secrets/common/secrets.yaml mise run secrets-view
 ```
 
 ### Update encryption keys (after adding new host):
 ```bash
-just secrets-update
+mise run secrets-update
 ```
 
 **See `docs/SOPS_GPG_SETUP.md` for complete setup guide.**
@@ -311,13 +312,21 @@ mise tasks ls
 mise run ci-validate
 mise run ci-security
 
-# Legacy ops path (still just-based while migration is in progress)
+# Deploy + sync operations
+HOST=<hostname> mise run deploy
+HOST=<hostname> mise run pull-deploy
+HOST=<hostname> mise run sync-remote
+HOST=<hostname> BRANCH=main mise run remote-push
+
+# Secrets operations
+mise run secrets
+FILE=secrets/common/secrets.yaml mise run secrets-view
+mise run secrets-update
+
+# Flake input update
+mise run update
+
+# Legacy path for host bootstrap/install (until migrated)
 just --list
 just install <host> <category> <ip>
-just deploy <hostname>
-just deploy-all
-just update
-just secrets
-just knock <vps-hostname>
-just sync-remote <hostname>
 ```
