@@ -1,6 +1,9 @@
 { config, pkgs, lib, ... }:
 
 let
+  knockSequence =
+    lib.attrByPath [ "sops" "placeholder" "knockd/sequence" ] [ "7000" "8000" "9000" ] config;
+
   # Port knocking sequence will be loaded from sops
   # This is just the module structure
   knockdConfig = ''
@@ -8,7 +11,7 @@ let
       UseSyslog
 
     [openSSH]
-      sequence    = ${builtins.concatStringsSep "," config.sops.placeholder."knockd/sequence"}
+      sequence    = ${builtins.concatStringsSep "," knockSequence}
       seq_timeout = 15
       tcpflags    = syn
       command     = ${pkgs.iptables}/bin/iptables -I INPUT -s %IP% -p tcp --dport 22 -j ACCEPT
