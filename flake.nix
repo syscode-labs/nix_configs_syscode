@@ -254,8 +254,6 @@
               jq
               asciinema
               mkpasswd
-            ] ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
-              pkgs.knockd # For port knocking (Linux only)
             ];
 
             shellHook = ''
