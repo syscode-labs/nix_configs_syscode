@@ -1,0 +1,60 @@
+# SOPS configuration for secret management
+# Secrets are encrypted with GPG keys specified below
+
+keys:
+  # Main admin key (you)
+  - &admin_giovanni REPLACE_WITH_YOUR_GPG_FINGERPRINT
+
+  # Per-host age keys (generated on each host)
+  # Run on each host: sudo mkdir -p /var/lib/sops-nix && sudo age-keygen -o /var/lib/sops-nix/key.txt
+  # Then get public key with: sudo age-keygen -y /var/lib/sops-nix/key.txt
+
+  # Laptop keys
+  - &bit_age age1REPLACE_WITH_BIT_AGE_PUBLIC_KEY
+  - &spark_age age1REPLACE_WITH_SPARK_AGE_PUBLIC_KEY
+  - &hermes_age age1REPLACE_WITH_HERMES_AGE_PUBLIC_KEY
+
+  # VPS keys
+  - &vps_alpha_age age1REPLACE_WITH_VPS_ALPHA_AGE_PUBLIC_KEY
+
+creation_rules:
+  # Secrets accessible by all hosts
+  - path_regex: secrets/common/.*\.yaml$
+    key_groups:
+      - pgp:
+          - *admin_giovanni
+        age:
+          - *bit_age
+          - *spark_age
+          - *hermes_age
+          - *vps_alpha_age
+
+  # Laptop-specific secrets
+  - path_regex: secrets/laptops/.*\.yaml$
+    key_groups:
+      - pgp:
+          - *admin_giovanni
+        age:
+          - *bit_age
+          - *spark_age
+          - *hermes_age
+
+  # VPS-specific secrets (port knocking sequences, etc.)
+  - path_regex: secrets/vps/.*\.yaml$
+    key_groups:
+      - pgp:
+          - *admin_giovanni
+        age:
+          - *vps_alpha_age
+
+  # Server-specific secrets
+  - path_regex: secrets/servers/.*\.yaml$
+    key_groups:
+      - pgp:
+          - *admin_giovanni
+
+  # Experiment-specific secrets
+  - path_regex: secrets/experiments/.*\.yaml$
+    key_groups:
+      - pgp:
+          - *admin_giovanni
