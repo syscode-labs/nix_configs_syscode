@@ -1,20 +1,17 @@
-{
-  lib,
-  pkgs,
-  userName ? "nixos",
-  userGitName ? userName,
-  userGitEmail ? "${userName}@localhost",
-  ...
+{ lib
+, pkgs
+, userName ? "nixos"
+, userGitName ? userName
+, userGitEmail ? "${userName}@localhost"
+, ...
 }:
 
 let
   homeDirDefault =
     if pkgs.stdenv.isDarwin then "/Users/${userName}" else "/home/${userName}";
 in
-
 {
   imports = [
-    ./ssh-config.nix
     ./neovim
     ./packages
     ./runtimes-mise.nix
@@ -22,7 +19,6 @@ in
 
   # Home Manager configuration for selected user identity.
   # This can be overridden per-host if needed
-
   home.username = lib.mkDefault userName;
   home.homeDirectory = lib.mkDefault homeDirDefault;
 
