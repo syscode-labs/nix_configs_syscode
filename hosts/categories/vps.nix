@@ -39,7 +39,7 @@
   # Disable unnecessary services
   services.printing.enable = lib.mkForce false;
   services.avahi.enable = lib.mkForce false;
-  sound.enable = lib.mkForce false;
+  services.pulseaudio.enable = lib.mkForce false;
 
   # Automatic updates for security
   system.autoUpgrade = {
@@ -67,9 +67,7 @@
   }];
 
   # Resource limits
-  systemd.extraConfig = ''
-    DefaultLimitNOFILE=65536
-  '';
+  systemd.settings.Manager.DefaultLimitNOFILE = 65536;
 
   # Audit logging
   security.auditd.enable = true;
