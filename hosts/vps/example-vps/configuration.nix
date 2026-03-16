@@ -18,9 +18,6 @@
   # Network interface - adjust based on VPS provider
   networking.interfaces.ens3.useDHCP = true;
 
-  # Port knocking interface
-  services.knockd.interface = "ens3";
-
   # Users - minimal for VPS
   users.users.giovanni = {
     isNormalUser = true;
