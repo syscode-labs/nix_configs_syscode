@@ -1,4 +1,16 @@
-{ ... }:
+{
+  lib,
+  pkgs,
+  userName ? "nixos",
+  userGitName ? userName,
+  userGitEmail ? "${userName}@localhost",
+  ...
+}:
+
+let
+  homeDirDefault =
+    if pkgs.stdenv.isDarwin then "/Users/${userName}" else "/home/${userName}";
+in
 
 {
   imports = [
@@ -8,17 +20,17 @@
     ./runtimes-mise.nix
   ];
 
-  # Home Manager configuration for user giovanni
+  # Home Manager configuration for selected user identity.
   # This can be overridden per-host if needed
 
-  home.username = "giovanni";
-  home.homeDirectory = "/home/giovanni";
+  home.username = lib.mkDefault userName;
+  home.homeDirectory = lib.mkDefault homeDirDefault;
 
   # Git configuration
   programs.git = {
     enable = true;
-    userName = "Giovanni";
-    userEmail = "your.email@example.com"; # Change this
+    userName = userGitName;
+    userEmail = userGitEmail;
     extraConfig = {
       init.defaultBranch = "main";
       pull.rebase = true;

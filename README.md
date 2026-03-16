@@ -42,6 +42,24 @@ Personal NixOS configuration using flakes, with categorized hosts (laptops, VPS,
 - Git
 - GPG key for secrets encryption
 
+## Identity and Machine-Agnostic Defaults
+
+This repo supports user identity overrides without editing module code.
+
+- `NIXCFG_USER` (default: `nixos`)
+- `NIXCFG_GIT_NAME` (default: `NIXCFG_USER`)
+- `NIXCFG_GIT_EMAIL` (default: `<NIXCFG_USER>@localhost`)
+
+Example:
+
+```bash
+export NIXCFG_USER="$USER"
+export NIXCFG_GIT_NAME="Your Name"
+export NIXCFG_GIT_EMAIL="you@example.com"
+```
+
+These values are consumed by flake outputs and Home Manager user module wiring.
+
 ## Quick Start
 
 📹 **New to this setup?** Watch the [5-minute quick start tutorial](docs/tutorials/01-quick-start.cast) to see the fully automated installation in action.
