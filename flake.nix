@@ -26,7 +26,7 @@
       # Machine-agnostic identity defaults (override via env when needed).
       defaultUser =
         let u = builtins.getEnv "NIXCFG_USER";
-        in if u != "" then u else "nixos";
+        in if u != "" then u else "giovanni";
       defaultGitName =
         let n = builtins.getEnv "NIXCFG_GIT_NAME";
         in if n != "" then n else defaultUser;
