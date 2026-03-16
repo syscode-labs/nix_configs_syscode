@@ -9,28 +9,28 @@ run = "echo 'check complete'"
 [tasks.fmt]
 description = "Format Nix files"
 run = '''
-set -euo pipefail
+set -eu
 nix fmt
 '''
 
 [tasks.fmt-check]
 description = "Check Nix formatting"
 run = '''
-set -euo pipefail
+set -eu
 nix fmt -- --check .
 '''
 
 [tasks.flake-check]
 description = "Run flake checks without building heavy outputs"
 run = '''
-set -euo pipefail
+set -eu
 nix flake check --no-build
 '''
 
 [tasks.build-dryrun]
 description = "Dry-run build for canonical host configs"
 run = '''
-set -euo pipefail
+set -eu
 nix build .#nixosConfigurations.bit.config.system.build.toplevel --dry-run
 '''
 
@@ -42,18 +42,18 @@ run = "echo 'validation complete'"
 [tasks.ci-security]
 description = "CI security checks"
 run = '''
-set -euo pipefail
+set -eu
 python3 -m pip install --quiet detect-secrets
 
-detect-secrets scan --baseline .secrets.baseline
-detect-secrets audit .secrets.baseline
+python3 -m detect_secrets scan --baseline .secrets.baseline
+python3 -m detect_secrets.pre_commit_hook --baseline .secrets.baseline $(git ls-files)
 
 if grep -rE "(password|secret|token|api_key|private_key)\\s*=\\s*['\\\"]\\S+" . --include="*.nix" | grep -v ".github"; then
   echo "Error: Found potential hardcoded secrets. Use sops-nix for secrets!"
   exit 1
 fi
 
-if find . -type f -exec grep -l "BEGIN.*PRIVATE KEY" {} \\; | grep -v ".secrets.baseline"; then
+if find . -type f -exec grep -lE -- "-----BEGIN [A-Z ]*PRIVATE KEY-----" {} \; | grep -v ".secrets.baseline"; then
   echo "Error: Found private keys in repository!"
   exit 1
 fi
@@ -62,62 +62,62 @@ fi
 [tasks.update]
 description = "Update flake inputs"
 run = '''
-set -euo pipefail
+set -eu
 ./scripts/mise/update.sh
 '''
 
 [tasks.deploy]
 description = "Deploy to host (set HOST=<name>)"
 run = '''
-set -euo pipefail
+set -eu
 ./scripts/mise/deploy.sh
 '''
 
 [tasks.deploy-all]
 description = "Deploy to standard host set"
 run = '''
-set -euo pipefail
+set -eu
 ./scripts/mise/deploy-all.sh
 '''
 
 [tasks.pull-deploy]
 description = "git pull then deploy (set HOST=<name>)"
 run = '''
-set -euo pipefail
+set -eu
 ./scripts/mise/pull-deploy.sh
 '''
 
 [tasks.sync-remote]
 description = "Sync changed files from remote host (set HOST=<name>)"
 run = '''
-set -euo pipefail
+set -eu
 ./scripts/mise/sync-remote.sh
 '''
 
 [tasks.remote-push]
 description = "Commit/push from remote host via agent forwarding (HOST, optional BRANCH)"
 run = '''
-set -euo pipefail
+set -eu
 ./scripts/mise/remote-push.sh
 '''
 
 [tasks.secrets]
 description = "Edit encrypted secrets (optional FILE=secrets/...yaml)"
 run = '''
-set -euo pipefail
+set -eu
 ./scripts/mise/secrets-edit.sh
 '''
 
 [tasks.secrets-view]
 description = "View decrypted secrets (optional FILE=secrets/...yaml)"
 run = '''
-set -euo pipefail
+set -eu
 ./scripts/mise/secrets-view.sh
 '''
 
 [tasks.secrets-update]
 description = "Run sops updatekeys on secrets/*.yaml"
 run = '''
-set -euo pipefail
+set -eu
 ./scripts/mise/secrets-update.sh
 '''
