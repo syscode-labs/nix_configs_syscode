@@ -1,0 +1,27 @@
+# Nix build outputs
+result
+result-*
+
+# Hardware configuration (machine-specific)
+# Uncomment if you want to ignore hardware configs
+# hosts/*/hardware-configuration.nix
+
+# Secrets - DO NOT COMMIT
+secrets/
+*.age
+*.key
+!*.pub
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
+
+# Development
+.direnv/
+.envrc
