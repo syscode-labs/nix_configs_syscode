@@ -79,6 +79,7 @@
             home-manager.nixosModules.home-manager
             sops-nix.nixosModules.sops
             {
+              nixpkgs.config.allowUnfree = true;
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;
               home-manager.extraSpecialArgs = {
