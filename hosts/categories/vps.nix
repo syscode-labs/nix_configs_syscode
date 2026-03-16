@@ -7,7 +7,6 @@
     ../common/default.nix
     ../../modules/networking/tailscale.nix
     ../../modules/networking/base-firewall.nix
-    ../../modules/networking/firewall-knockd.nix
   ];
 
   # VPS are headless - no GUI
