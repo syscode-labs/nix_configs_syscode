@@ -1,0 +1,55 @@
+[tools]
+python = "3.13"
+
+[tasks.fmt]
+description = "Format Nix files"
+run = '''
+set -euo pipefail
+nix fmt
+'''
+
+[tasks.fmt-check]
+description = "Check Nix formatting"
+run = '''
+set -euo pipefail
+nix fmt -- --check .
+'''
+
+[tasks.flake-check]
+description = "Run flake checks without building heavy outputs"
+run = '''
+set -euo pipefail
+nix flake check --no-build
+'''
+
+[tasks.build-dryrun]
+description = "Dry-run build for canonical host configs"
+run = '''
+set -euo pipefail
+nix build .#nixosConfigurations.bit.config.system.build.toplevel --dry-run
+'''
+
+[tasks.ci-validate]
+description = "CI validation pipeline"
+depends = ["fmt-check", "flake-check", "build-dryrun"]
+run = "echo 'validation complete'"
+
+[tasks.ci-security]
+description = "CI security checks"
+run = '''
+set -euo pipefail
+python3 -m pip install --quiet detect-secrets
+
+detect-secrets scan --baseline .secrets.baseline
+detect-secrets audit .secrets.baseline
+
+if grep -rE "(password|secret|token|api_key|private_key)\\s*=\\s*['\\\"]\\S+" . --include="*.nix" | grep -v ".github"; then
+  echo "Error: Found potential hardcoded secrets. Use sops-nix for secrets!"
+  exit 1
+fi
+
+if find . -type f -exec grep -l "BEGIN.*PRIVATE KEY" {} \\; | grep -v ".secrets.baseline"; then
+  echo "Error: Found private keys in repository!"
+  exit 1
+fi
+'''
