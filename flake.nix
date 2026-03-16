@@ -81,6 +81,9 @@
             {
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;
+              home-manager.extraSpecialArgs = {
+                inherit userName userGitName userGitEmail;
+              };
               home-manager.users.${userName} = import ./modules/users/giovanni.nix;
               home-manager.sharedModules = [
                 nixvim.homeManagerModules.nixvim
