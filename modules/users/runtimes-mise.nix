@@ -38,7 +38,7 @@ in
   xdg.configFile."mise/config.toml".text = lib.concatStringsSep "\n"
     (
       [ "[tools]" ]
-      ++ map (name: "${name} = \"${runtimeTools.${name}}\"")
+        ++ map (name: "${name} = \"${runtimeTools.${name}}\"")
         (builtins.attrNames runtimeTools)
     ) + "\n";
 }
