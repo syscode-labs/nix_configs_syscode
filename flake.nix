@@ -255,7 +255,7 @@
               asciinema
               mkpasswd
             ] ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
-              knockd # For port knocking (Linux only)
+              pkgs.knockd # For port knocking (Linux only)
             ];
 
             shellHook = ''
