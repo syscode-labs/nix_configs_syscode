@@ -14,7 +14,6 @@
   boot.loader.efi.canTouchEfiVariables = true;
 
   # Framework laptop hardware optimizations
-  hardware.framework.enableKmod = true; # Framework specific kernel modules
 
   # Desktop environment
   services.xserver.displayManager.gdm.enable = true;
