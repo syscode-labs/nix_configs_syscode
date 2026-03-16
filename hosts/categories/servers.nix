@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 {
   # Common configuration for server hosts
@@ -50,6 +50,6 @@
   nix.gc = {
     automatic = true;
     dates = "weekly";
-    options = "--delete-older-than 14d";
+    options = lib.mkForce "--delete-older-than 14d";
   };
 }
