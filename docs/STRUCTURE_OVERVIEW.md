@@ -1,10 +1,47 @@
 # NixOS Configuration Structure Overview
 
+## Multi-Architecture Support
+
+This configuration supports **multiple CPU architectures**:
+
+- **x86_64-linux**: Intel/AMD 64-bit (traditional servers, VPS, laptops)
+- **aarch64-linux**: ARM 64-bit (Raspberry Pi, Ampere, AWS Graviton)
+- **x86_64-darwin**: Intel Mac
+- **aarch64-darwin**: Apple Silicon (M1/M2/M3)
+
+Each host specifies its architecture in `flake.nix`:
+
+```nix
+nixosConfigurations = {
+  laptop = mkHost {
+    hostname = "laptop";
+    category = "laptops";
+    system = "x86_64-linux";  # ← Architecture specified here
+  };
+
+  titan = mkHost {
+    hostname = "titan";
+    category = "laptops";
+    system = "x86_64-linux";  # ← Framework 13 AMD
+  };
+
+  vps-arm = mkHost {
+    hostname = "vps-arm";
+    category = "vps";
+    system = "aarch64-linux";  # ← ARM-based VPS
+  };
+};
+```
+
+See `docs/MULTI_ARCH.md` for detailed multi-architecture documentation.
+
+---
+
 ## Host Categories
 
 This repository organizes hosts into four categories with different security postures and configurations:
 
-### 📱 Laptops (bit, spark, hermes)
+### 📱 Laptops (bit, spark, hermes, titan)
 
 **Purpose**: Full-featured workstations for development and daily use
 
@@ -21,6 +58,7 @@ This repository organizes hosts into four categories with different security pos
 - **bit**: Main laptop, primary development machine
 - **spark**: Framework laptop with Framework-specific optimizations
 - **hermes**: Third laptop, minimal configuration
+- **titan**: Framework Laptop 13 AMD (Ryzen 7840U), LUKS2 FDE with YubiKey HMAC-SHA1 challenge-response, btrfs + LVM
 
 ---
 
@@ -120,9 +158,13 @@ ssh giovanni@vps-alpha
 │   │   ├── spark/
 │   │   │   ├── configuration.nix       # spark-specific (Framework)
 │   │   │   └── hardware-configuration.nix
-│   │   └── hermes/
-│   │       ├── configuration.nix
-│   │       └── hardware-configuration.nix
+│   │   ├── hermes/
+│   │   │   ├── configuration.nix
+│   │   │   └── hardware-configuration.nix
+│   │   └── titan/
+│   │       ├── configuration.nix       # titan-specific (Framework 13 AMD, YubiKey LUKS)
+│   │       ├── hardware-configuration.nix
+│   │       └── README.md               # LUKS/YubiKey boot flow documentation
 │   │
 │   ├── vps/
 │   │   └── example-vps/

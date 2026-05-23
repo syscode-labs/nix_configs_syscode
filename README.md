@@ -15,7 +15,7 @@ Personal NixOS configuration using flakes, with categorized hosts (laptops, VPS,
 │   │   ├── vps.nix          # Hardened minimal cloud instances
 │   │   ├── servers.nix      # On-premises server config
 │   │   └── experiments.nix  # Development/testing config
-│   ├── laptops/             # Laptop hosts (bit, spark, hermes)
+│   ├── laptops/             # Laptop hosts (bit, spark, hermes, titan)
 │   ├── vps/                 # VPS hosts
 │   ├── servers/             # Server hosts
 │   └── experiments/         # Experiment hosts
@@ -90,12 +90,13 @@ These values are consumed by flake outputs and Home Manager user module wiring.
    # See docs/SOPS_GPG_SETUP.md for details
    ```
 
-5. **Create Tailscale authkey:**
+5. **Create Tailscale OAuth client (for automatic per-machine key generation):**
    ```bash
-   # Visit: https://login.tailscale.com/admin/settings/keys
-   # Generate reusable authkey
-   # Add to secrets/common/secrets.yaml
+   # Visit: https://login.tailscale.com/admin/settings/oauth
+   # Create OAuth client with auth_keys scope (devices group)
+   # Add oauth_id and oauth_secret to secrets/common/secrets.yaml
    sops secrets/common/secrets.yaml
+   # See docs/SOPS_GPG_SETUP.md for the expected YAML structure
    ```
 
 6. **Run CI-equivalent validation locally (mise-first):**
@@ -254,7 +255,7 @@ mise run secrets-update
 
 Each host category has different security and functionality profiles:
 
-- **laptops** (bit, spark, hermes): Full workstation with desktop, dev tools, Docker
+- **laptops** (bit, spark, hermes, titan): Full workstation with desktop, dev tools, Docker
 - **vps** (vps-alpha, ...): Hardened minimal cloud instances with port knocking, auto-updates
 - **servers** (server-alpha, ...): On-premises servers with Docker, monitoring
 - **experiments** (test-vm, ...): Development/testing with relaxed security
@@ -266,8 +267,10 @@ See `docs/STRUCTURE_OVERVIEW.md` for architecture details.
 - **Pre-commit hooks** validate Nix files and scan for secrets before commits
 - **GitHub Actions CI** runs `mise` tasks for validation/security on every push
 - **detect-secrets** scans for accidentally committed secrets
+- **gitleaks** scans git history for leaked secrets (pre-commit hook + GitHub Actions CI)
 - **sops-nix** integration with GPG + age for encrypted secrets management
-- **Tailscale mesh VPN** for secure inter-host communication
+- **Tailscale mesh VPN** with OAuth-based per-machine key generation
+- **Port knocking** for SSH access on VPS hosts
 - **Port knocking** for SSH access on VPS hosts
 - **Hardened kernel** and AppArmor on VPS
 - **fail2ban** for SSH brute force protection

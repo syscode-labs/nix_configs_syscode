@@ -11,22 +11,47 @@ We use **SOPS** (Secrets OPerationS) with **GPG** and **age** encryption for man
 
 ## Initial Setup
 
-### 1. Generate GPG Key (One Time)
+### Video Tutorial
 
-Generate a GPG key for encrypting secrets:
+📹 **Watch the secrets management walkthrough (3-4 minutes):**
+```bash
+asciinema play docs/tutorials/03-secrets-management.cast
+```
+
+Or view the [tutorial file directly](../tutorials/03-secrets-management.cast).
+
+This tutorial covers GPG key generation, SOPS configuration, and editing encrypted secrets with dummy data.
+
+### 1. GPG Admin Key (Already Configured)
+
+The admin GPG key for this repo is:
+
+```
+Fingerprint : F646910E8FC4D54FCF88190F9EC61F85872B0E70
+UID         : Giovanni Ferri <giovanni@syscode.uk>
+Expires     : 2027-05-23
+```
+
+This key is already referenced in `.sops.yaml`. To use it on a new workstation, import the private key from your secure backup:
 
 ```bash
-# Generate a new GPG key
-gpg --full-generate-key
-
-# Choose:
-# - Kind: (1) RSA and RSA
-# - Key size: 4096
-# - Expiration: 0 (does not expire) or your preference
-# - Real name: Your name
-# - Email: your.email@example.com
-# - Passphrase: Strong passphrase (store in password manager!)
+gpg --import gpg-private-key.asc
+gpg --edit-key giovanni@syscode.uk
+# trust → 5 (ultimate) → quit
 ```
+
+To regenerate or extend the key:
+
+```bash
+# Extend expiry (preserves fingerprint)
+gpg --edit-key giovanni@syscode.uk
+# expire → new date → save
+
+# Push updated key to keyserver
+gpg --keyserver keys.openpgp.org --send-keys F646910E8FC4D54FCF88190F9EC61F85872B0E70
+```
+
+Always use a strong passphrase when generating or importing GPG keys. Store it in your password manager.
 
 ### 2. Get Your GPG Fingerprint
 
@@ -34,22 +59,17 @@ gpg --full-generate-key
 # List your GPG keys
 gpg --list-secret-keys --keyid-format LONG
 
-# Output will look like:
-# sec   rsa4096/ABCD1234EFGH5678 2024-01-01 [SC]
-#       1234567890ABCDEF1234567890ABCDEF12345678
-# uid   Your Name <your.email@example.com>
-
 # Copy the full 40-character fingerprint (without spaces)
 gpg --list-secret-keys --keyid-format LONG --with-colons | grep fpr | cut -d: -f10
 ```
 
 ### 3. Update .sops.yaml
 
-Edit `.sops.yaml` and replace `REPLACE_WITH_YOUR_GPG_FINGERPRINT` with your actual GPG fingerprint:
+Edit `.sops.yaml` and set your fingerprint under the admin key:
 
 ```yaml
 keys:
-  - &admin_giovanni YOUR_ACTUAL_40_CHAR_FINGERPRINT_HERE
+  - &admin_giovanni F646910E8FC4D54FCF88190F9EC61F85872B0E70
 ```
 
 ### 4. Generate Age Keys on Each Host
@@ -75,13 +95,47 @@ sudo chown root:root /var/lib/sops-nix/key.txt
 
 ### 5. Update .sops.yaml with Age Keys
 
-For each host, add its age public key to `.sops.yaml`:
+For each host, add its age public key to `.sops.yaml`. Current registered host keys:
 
 ```yaml
 keys:
-  - &bit_age age1abcdefg...xyz  # Replace with actual key from bit
-  - &spark_age age1qrstuvw...abc # Replace with actual key from spark
+  - &titan_age age1jdmwvx9jfgyhp9xledlkhrf0nsuax47pj2982y0k2nr6d7hspssqn6sdna
+  # Add new hosts below as they are provisioned
+  # - &spark_age age1...
 ```
+
+Add the new host's key to the relevant `creation_rules` paths (e.g. `secrets/common/*` and `secrets/laptops/*`) so sops can re-encrypt for it.
+
+## Tailscale OAuth Setup
+
+This repo uses a Tailscale **OAuth client** instead of a static authkey. A single OAuth client secret generates unique per-machine ephemeral keys at registration time — no rotation needed across hosts.
+
+### Create the OAuth Client (One Time)
+
+1. Go to <https://login.tailscale.com/admin/settings/oauth>
+2. Click **Generate OAuth client**
+3. Under **Scopes**, expand **Devices** and enable `auth_keys` (write)
+4. Save the **Client ID** and **Client Secret**
+
+### Store in sops secrets
+
+```yaml
+# secrets/common/secrets.yaml (before encryption)
+tailscale:
+  oauth_id: tskey-client-XXXXXXXXXXXXXXXX
+  oauth_secret: tskey-client-XXXXXXXXXXXXXXXX-XXXXXXXXXXXXXXXXXXXXXXXXX
+```
+
+```bash
+# Encrypt in place
+sops -e -i secrets/common/secrets.yaml
+```
+
+### How it Works in NixOS
+
+`modules/networking/tailscale.nix` reads `tailscale_oauth_secret` from sops and passes it to `services.tailscale.authKeyFile`. On first boot the machine registers itself and joins the tailnet automatically.
+
+---
 
 ## Creating and Encrypting Secrets
 

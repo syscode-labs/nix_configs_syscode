@@ -21,20 +21,31 @@ gpg --list-secret-keys --keyid-format LONG --with-colons | grep fpr | cut -d: -f
 # 4. Update .sops.yaml with your GPG fingerprint
 vim .sops.yaml
 
-# 5. Create Tailscale authkey
-# Visit: https://login.tailscale.com/admin/settings/keys
-# Generate reusable key
+# 5. Create Tailscale OAuth client (generates per-machine keys automatically)
+# Visit: https://login.tailscale.com/admin/settings/oauth
+# Create OAuth client with auth_keys scope (devices group)
+# Copy the Client ID and Client Secret
 
-# 6. Add to secrets
+# 6. Add OAuth credentials to secrets
 cp secrets/common/secrets.yaml.example secrets/common/secrets.yaml
 sops secrets/common/secrets.yaml
-# Add your Tailscale authkey
+# Add tailscale.oauth_id and tailscale.oauth_secret
+# See docs/SOPS_GPG_SETUP.md for the expected YAML structure
 
 # 7. Set up pre-commit
 just setup
 ```
 
 ### Install a New Host
+
+#### Video Walkthrough
+
+📹 **Watch the installation in action:**
+```bash
+asciinema play docs/tutorials/01-quick-start.cast
+```
+
+Or view the [tutorial file directly](../tutorials/01-quick-start.cast).
 
 #### Single Command - Fully Automated
 
@@ -79,12 +90,13 @@ Access via: `ssh giovanni@spark`
 
 ## What Gets Installed (by Category)
 
-### Laptops (bit, spark, hermes)
+### Laptops (bit, spark, hermes, titan)
 
 - Desktop environment (GNOME)
 - Development tools (git, docker, vscode)
 - Power management, Bluetooth, audio
-- Tailscale, firewall, fail2ban
+- Tailscale (OAuth auto-registration), firewall, fail2ban
+- **titan**: LUKS2 FDE with YubiKey HMAC-SHA1 (slot 2), btrfs, Framework 13 AMD
 
 ### VPS (vps-alpha, vps-beta, ...)
 
