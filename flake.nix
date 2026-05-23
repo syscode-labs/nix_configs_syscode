@@ -135,6 +135,12 @@
           system = "x86_64-linux";
         };
 
+        titan = mkHost {
+          hostname = "titan";
+          category = "laptops";
+          system = "x86_64-linux";
+        };
+
         # === LAPTOPS (ARM - Apple Silicon example) ===
         # Uncomment when you have ARM laptops
         # macbook = mkHost {
@@ -199,6 +205,12 @@
         hermes = mkDeployNode {
           hostname = "hermes";
           configName = "hermes";
+          system = "x86_64-linux";
+        };
+
+        titan = mkDeployNode {
+          hostname = "titan";
+          configName = "titan";
           system = "x86_64-linux";
         };
 

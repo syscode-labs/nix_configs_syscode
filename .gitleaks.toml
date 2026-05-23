@@ -1,0 +1,15 @@
+[extend]
+# Use the default gitleaks ruleset as base
+useDefault = true
+
+[allowlist]
+description = "Global allowlist"
+paths = [
+  # sops-encrypted files are safe — values are ciphertext, not plaintext secrets
+  '''secrets/.*\.yaml$''',
+  # Lock files and example templates
+  '''flake\.lock$''',
+  '''.*\.example$''',
+  # Pre-commit baseline (contains hashed findings, not actual secrets)
+  '''\.secrets\.baseline$''',
+]

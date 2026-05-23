@@ -5,6 +5,8 @@
   services.tailscale = {
     enable = true;
     useRoutingFeatures = "client";
+    authKeyFile = lib.mkIf (config.sops.secrets ? tailscale_oauth_secret)
+      config.sops.secrets.tailscale_oauth_secret.path;
   };
 
   # Open Tailscale port in firewall

@@ -6,8 +6,10 @@ result-*
 # Uncomment if you want to ignore hardware configs
 # hosts/*/hardware-configuration.nix
 
-# Secrets - DO NOT COMMIT
-secrets/
+# Raw secret files - DO NOT COMMIT
+# sops-encrypted *.yaml files in secrets/ ARE safe to commit (ciphertext only)
+secrets/**/*.key
+secrets/**/*.age
 *.age
 *.key
 !*.pub
