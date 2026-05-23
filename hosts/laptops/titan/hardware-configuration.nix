@@ -3,7 +3,7 @@
 {
   imports = [ (modulesPath + "/installer/scan/not-detected.nix") ];
 
-  boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "thunderbolt" "usbhid" ];
+  boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "thunderbolt" "usb_storage" "usbhid" "sd_mod" ];
   boot.initrd.kernelModules = [ "dm-snapshot" ];
   boot.kernelModules = [ "kvm-amd" ];
   boot.extraModulePackages = [ ];
@@ -11,13 +11,13 @@
   fileSystems."/" = {
     device = "/dev/disk/by-uuid/fa2652a6-e9bf-4913-82ba-58835656ffb9";
     fsType = "btrfs";
-    options = [ "subvol=root" ];
+    options = [ "compress=zstd" "subvol=/root" ];
   };
 
   fileSystems."/home" = {
     device = "/dev/disk/by-uuid/fa2652a6-e9bf-4913-82ba-58835656ffb9";
     fsType = "btrfs";
-    options = [ "subvol=home" ];
+    options = [ "compress=zstd" "subvol=/home" ];
   };
 
   fileSystems."/boot" = {
