@@ -11,6 +11,7 @@
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    nixos-hardware.url = "github:NixOS/nixos-hardware/master";
     deploy-rs = {
       url = "github:serokell/deploy-rs";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -21,7 +22,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, sops-nix, deploy-rs, nixvim, ... }@inputs:
+  outputs = { self, nixpkgs, home-manager, sops-nix, deploy-rs, nixvim, nixos-hardware, ... }@inputs:
     let
       # Machine-agnostic identity defaults (override via env when needed).
       defaultUser =
@@ -139,6 +140,7 @@
           hostname = "titan";
           category = "laptops";
           system = "x86_64-linux";
+          extraModules = [ nixos-hardware.nixosModules.framework-13-7040-amd ];
         };
 
         # === LAPTOPS (ARM - Apple Silicon example) ===

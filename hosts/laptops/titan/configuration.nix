@@ -18,7 +18,8 @@
   # ── Boot ──────────────────────────────────────────────────────────────────
   # Extra modules needed for LUKS + YubiKey unlock from the EFI partition
   boot.initrd.kernelModules = [ "vfat" "nls_cp437" "nls_iso8859-1" "usbhid" ];
-  boot.kernelParams = [ "mem_sleep_default=deep" ];
+  # S3 (deep) is not supported on this hardware; s2idle (S0ix) is the correct mode
+  boot.kernelParams = [ "mem_sleep_default=s2idle" ];
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
   boot.loader = {
