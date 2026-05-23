@@ -7,6 +7,7 @@
     useRoutingFeatures = "client";
     authKeyFile = lib.mkIf (config.sops.secrets ? tailscale_oauth_secret)
       config.sops.secrets.tailscale_oauth_secret.path;
+    extraUpFlags = [ "--advertise-tags=tag:nix" ];
   };
 
   # Open Tailscale port in firewall
