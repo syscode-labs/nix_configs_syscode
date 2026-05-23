@@ -60,7 +60,7 @@
       sha256 = "sha256:003qcrsq5g5lggfrpq31gcvj82lb065xvr7bpfa8ddsw8x4dnysk";
     })
     {
-      inherit (pkgs) system;
+      system = pkgs.stdenv.hostPlatform.system;
     }).fwupd;
 
   # ── Locale overrides (common/default.nix sets en_US/New York) ─────────────
@@ -86,7 +86,7 @@
   services.fprintd.enable = true;
 
   # ── Sound ─────────────────────────────────────────────────────────────────
-  hardware.pulseaudio.enable = false;
+  services.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;

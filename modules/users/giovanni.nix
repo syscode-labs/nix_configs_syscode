@@ -24,9 +24,9 @@ in
   # Git configuration
   programs.git = {
     enable = true;
-    userName = userGitName;
-    userEmail = userGitEmail;
-    extraConfig = {
+    settings = {
+      user.name = userGitName;
+      user.email = userGitEmail;
       init.defaultBranch = "main";
       pull.rebase = true;
     };

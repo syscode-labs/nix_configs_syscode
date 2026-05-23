@@ -17,7 +17,7 @@
   networking.networkmanager.enable = true;
 
   # Sound
-  hardware.pulseaudio.enable = false;
+  services.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
@@ -55,9 +55,9 @@
 
   # Laptop-specific services
   services.upower.enable = true;
-  services.logind = {
-    lidSwitch = "suspend";
-    lidSwitchDocked = "ignore";
+  services.logind.settings.Login = {
+    HandleLidSwitch = "suspend";
+    HandleLidSwitchDocked = "ignore";
   };
 
   # Enable CUPS for printing

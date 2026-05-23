@@ -88,7 +88,7 @@
               };
               home-manager.users.${userName} = import ./modules/users/giovanni.nix;
               home-manager.sharedModules = [
-                nixvim.homeManagerModules.nixvim
+                nixvim.homeModules.nixvim
               ];
             }
           ] ++ extraModules;
