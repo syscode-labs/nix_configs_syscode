@@ -9,6 +9,14 @@
     ../../modules/networking/base-firewall.nix
   ];
 
+  # SSH host config — topology kept encrypted; deployed to user's ~/.ssh/config.d/hosts
+  sops.secrets.ssh_hosts_config = {
+    sopsFile = ../../secrets/laptops/ssh-hosts.yaml;
+    owner = "giovanni";
+    path = "/home/giovanni/.ssh/config.d/hosts";
+    mode = "0600";
+  };
+
   # Laptop-specific settings
   powerManagement.enable = true;
   services.thermald.enable = true;
