@@ -22,6 +22,13 @@
   boot.kernelParams = [ "mem_sleep_default=s2idle" ];
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
+  # linux-firmware ships MT7922 BT firmware zstd-compressed; enable kernel decompression
+  boot.kernelPatches = [{
+    name = "fw-compress-zstd";
+    patch = null;
+    extraConfig = "FW_LOADER_COMPRESS_ZSTD y";
+  }];
+
   boot.loader = {
     systemd-boot.enable = true;
     efi.canTouchEfiVariables = true;
