@@ -51,6 +51,10 @@
     # Common desktop apps
     firefox
     alacritty
+
+    # Password manager + SSH agent
+    bitwarden-desktop
+    bitwarden-cli
   ];
 
   # Laptop-specific services
