@@ -13,7 +13,7 @@
   sops.age.keyFile = "/var/lib/sops-nix/key.txt";
 
   sops.secrets.tailscale_oauth_secret = { };
-
+  sops.secrets.giovanni_hashed_password = { neededForUsers = true; };
 
   # ── Boot ──────────────────────────────────────────────────────────────────
   # Extra modules needed for LUKS + YubiKey unlock from the EFI partition
@@ -107,6 +107,7 @@
     isNormalUser = true;
     description = "Giovanni Ferri";
     shell = pkgs.fish;
+    hashedPasswordFile = config.sops.secrets.giovanni_hashed_password.path;
     extraGroups = [ "networkmanager" "wheel" "docker" "video" "audio" ];
     openssh.authorizedKeys.keys = [
       "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBDyv3qXnOMs2QwNPmoVwsCokSJBBDqCoQNIZ8NldVekbD4G6fz5p5cRo0ErjF0Z6T0iXa+wHfu/TcPJUd29xKnQ= giovanni@bit.lan"
