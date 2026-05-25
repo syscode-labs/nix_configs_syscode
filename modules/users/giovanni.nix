@@ -37,6 +37,7 @@ in
   # by the NixOS sops-nix module; see hosts/categories/laptops.nix.
   programs.ssh = {
     enable = true;
+    enableDefaultConfig = false;
     includes = [ "~/.ssh/config.d/hosts" ];
     extraConfig = "IdentityAgent ~/.bitwarden-ssh-agent.sock";
     matchBlocks."*".addKeysToAgent = "yes";
