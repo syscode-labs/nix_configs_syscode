@@ -86,6 +86,11 @@
 
     # Nerd font for bar glyphs
     nerd-fonts.jetbrains-mono
+
+    # Theme packages (available system-wide for GTK/cursor/icon tooling)
+    tokyonight-gtk-theme
+    papirus-icon-theme
+    bibata-cursors
   ];
 
   # ── Sound (pipewire already in laptops; ensure wireplumber is active) ─────
@@ -466,6 +471,48 @@
           }
         ];
       };
+    };
+
+    # ── GTK theme ────────────────────────────────────────────────────────────
+    gtk = {
+      enable = true;
+      theme = {
+        name = "Tokyonight-Dark";
+        package = pkgs.tokyonight-gtk-theme;
+      };
+      iconTheme = {
+        name = "Papirus-Dark";
+        package = pkgs.papirus-icon-theme;
+      };
+      cursorTheme = {
+        name = "Bibata-Modern-Classic";
+        package = pkgs.bibata-cursors;
+        size = 24;
+      };
+      font = {
+        name = "Noto Sans";
+        size = 11;
+      };
+    };
+
+    # ── Qt theme (follows GTK) ────────────────────────────────────────────────
+    qt = {
+      enable = true;
+      platformTheme.name = "gtk";
+    };
+
+    # ── Cursor (Wayland + X11) ────────────────────────────────────────────────
+    home.pointerCursor = {
+      name = "Bibata-Modern-Classic";
+      package = pkgs.bibata-cursors;
+      size = 24;
+      gtk.enable = true;
+      x11.enable = true;
+    };
+
+    home.sessionVariables = {
+      XCURSOR_THEME = "Bibata-Modern-Classic";
+      XCURSOR_SIZE = "24";
     };
 
     # Hyprpaper minimal config (set a wallpaper later via hyprpaper.conf)
