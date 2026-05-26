@@ -520,6 +520,14 @@
       XCURSOR_SIZE = "24";
     };
 
+    programs.ghostty = {
+      enable = true;
+      settings = {
+        font-size = 10;
+        background-opacity = 0.9;
+      };
+    };
+
     xdg.configFile."hypr/hyprpaper.conf".text =
       let
         wp = builtins.fetchurl {
