@@ -67,6 +67,10 @@
 
   # YubiKey udev rules (FIDO2/U2F access for non-root)
   services.udev.packages = with pkgs; [ yubikey-personalization libu2f-host ];
+  services.udev.extraRules = ''
+    KERNEL=="hidraw*", SUBSYSTEM=="hidraw", ATTRS{idVendor}=="1050", GROUP="plugdev", MODE="0660"
+  '';
+  users.groups.plugdev = { };
 
   # Laptop-specific services
   services.upower.enable = true;
