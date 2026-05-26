@@ -21,7 +21,7 @@
   boot.initrd.kernelModules = [ "vfat" "nls_cp437" "nls_iso8859-1" "usbhid" ];
   # S3 (deep) is not supported on this hardware; s2idle (S0ix) is the correct mode
   boot.kernelParams = [ "mem_sleep_default=s2idle" ];
-  boot.blacklistedKernelModules = [ "sp5100_tco" ];
+  boot.blacklistedKernelModules = [ "sp5100_tco" "cros_usbpd_charger" ];
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
   # linux-firmware ships MT7922 BT firmware zstd-compressed; enable kernel decompression
@@ -218,7 +218,6 @@
   virtualisation.libvirtd.enable = true;
   programs.virt-manager.enable = true;
 
-  services.onedrive.enable = true;
   services.printing.enable = true;
 
   # ── Packages ──────────────────────────────────────────────────────────────
