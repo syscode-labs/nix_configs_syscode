@@ -32,10 +32,15 @@
   }];
 
   boot.loader = {
-    systemd-boot.enable = true;
+    systemd-boot = {
+      enable = true;
+      configurationLimit = 5;
+    };
     efi.canTouchEfiVariables = true;
-    grub.configurationLimit = 3;
+    timeout = 0;
   };
+
+  boot.plymouth.enable = true;
 
   # ── LUKS / YubiKey ────────────────────────────────────────────────────────
   # The YubiKey (slot 2, HMAC-SHA1 challenge-response) unlocks the LUKS
@@ -142,8 +147,19 @@
   hardware.enableAllFirmware = true;
   services.fprintd.enable = true;
 
-  security.pam.services.hyprlock.fprintAuth = true;
-  security.pam.services.login.fprintAuth = true;
+  security.pam.u2f = {
+    enable = true;
+    settings.cue = true;
+  };
+
+  security.pam.services.hyprlock = {
+    fprintAuth = true;
+    u2fAuth = true;
+  };
+  security.pam.services.login = {
+    fprintAuth = true;
+    u2fAuth = true;
+  };
 
   # ── Sound ─────────────────────────────────────────────────────────────────
   services.pulseaudio.enable = false;
