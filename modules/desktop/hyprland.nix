@@ -30,7 +30,10 @@
     enable = true;
     settings = {
       default_session = {
-        command = "${pkgs.tuigreet}/bin/tuigreet --time --remember --remember-session --cmd Hyprland";
+        command = "${pkgs.tuigreet}/bin/tuigreet --time --remember --remember-session --cmd ${pkgs.writeShellScript "start-hyprland" ''
+          printf '\033c' > /dev/tty1
+          exec Hyprland
+        ''}";
         user = "greeter";
       };
     };
