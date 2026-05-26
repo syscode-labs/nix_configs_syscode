@@ -12,5 +12,6 @@
     fd
     fzf
     ripgrep
+    zoxide
   ];
 }

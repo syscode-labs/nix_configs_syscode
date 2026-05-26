@@ -52,8 +52,36 @@ in
     };
   };
 
-  # Fish shell (if preferred)
-  # programs.fish.enable = true;
+  # Fish shell — plugins managed declaratively; no OMF needed.
+  programs.fish = {
+    enable = true;
+    plugins = [
+      { name = "tide"; src = pkgs.fishPlugins.tide.src; }
+      { name = "done"; src = pkgs.fishPlugins.done.src; }
+      { name = "sponge"; src = pkgs.fishPlugins.sponge.src; }
+      { name = "autopair"; src = pkgs.fishPlugins.autopair.src; }
+      { name = "fzf-fish"; src = pkgs.fishPlugins.fzf-fish.src; }
+      { name = "plugin-git"; src = pkgs.fishPlugins.plugin-git.src; }
+    ];
+    interactiveShellInit = ''
+      set -e fish_greeting
+      set -gx EDITOR vim
+      set -gx GOPATH "$HOME/go"
+      set -gx GRANTED_ENABLE_AUTO_REASSUME true
+      set -gx ENABLE_EXPERIMENTAL_MCP_CLI true
+
+      if test -f "$HOME/.config/bitwarden/secrets.fish"
+          source "$HOME/.config/bitwarden/secrets.fish"
+      end
+
+      mise activate fish | source
+      zoxide init --cmd cd fish | source
+
+      fish_add_path "$HOME/go/bin"
+      fish_add_path "$HOME/.krew/bin"
+      fish_add_path "$HOME/bin"
+    '';
+  };
 
   # This value determines the Home Manager release compatibility
   home.stateVersion = "24.11";
