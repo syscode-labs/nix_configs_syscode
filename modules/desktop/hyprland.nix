@@ -101,8 +101,8 @@
     wayland.windowManager.hyprland = {
       enable = true;
       settings = {
-        # 1.5x scale for Framework 13 2256×1504 HiDPI display
-        monitor = ",preferred,auto,1.5";
+        # 1.56667x scale recommended by Hyprland for Framework 13 2256×1504
+        monitor = ",preferred,auto,1.56667";
 
         general = {
           gaps_in = 5;
@@ -327,6 +327,7 @@
             ""
             ""
           ];
+          on-click = "ghostty --initial-window-size-columns=80 --initial-window-size-rows=24 -e bash -c 'watch -n2 upower -i $(upower -e | grep -i bat | head -1)'";
         };
         network = {
           format-wifi = "  {essid}";
@@ -356,7 +357,7 @@
       style = ''
         * {
           font-family: "JetBrainsMono Nerd Font", monospace;
-          font-size: 12px;
+          font-size: 10px;
           border: none;
           border-radius: 0;
           min-height: 0;
@@ -402,7 +403,7 @@
         border-radius = 4;
         border-size = 2;
         default-timeout = 5000;
-        font = "JetBrainsMono Nerd Font 11";
+        font = "JetBrainsMono Nerd Font 9";
         padding = "10,14";
         width = 360;
       };
@@ -491,7 +492,7 @@
       };
       font = {
         name = "Noto Sans";
-        size = 11;
+        size = 9;
       };
     };
 
