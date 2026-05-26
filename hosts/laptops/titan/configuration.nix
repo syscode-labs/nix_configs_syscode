@@ -40,8 +40,6 @@
     timeout = 0;
   };
 
-  boot.plymouth.enable = true;
-
   # ── LUKS / YubiKey ────────────────────────────────────────────────────────
   # The YubiKey (slot 2, HMAC-SHA1 challenge-response) unlocks the LUKS
   # volume at boot. twoFactor = true means the passphrase is still required
