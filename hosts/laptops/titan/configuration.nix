@@ -55,6 +55,50 @@
     };
   };
 
+  # ── Kernel crash dump ─────────────────────────────────────────────────────
+  # Reserves 256 MB for the capture kernel; on panic kexec boots it and
+  # makedumpfile writes the core to /var/crash.  A boot-time service then
+  # syncs any dumps to bookofshadows:/mnt/user/crash-dumps over NFS.
+  boot.crashDump = {
+    enable = true;
+    reservedMemory = "256M";
+  };
+
+  fileSystems."/var/crash/remote" = {
+    device = "10.10.210.59:/mnt/user/crash-dumps";
+    fsType = "nfs";
+    options = [
+      "x-systemd.automount"
+      "noauto"
+      "x-systemd.idle-timeout=60"
+      "_netdev"
+      "soft"
+      "timeo=10"
+      "retrans=3"
+    ];
+  };
+
+  systemd.services.kdump-sync = {
+    description = "Upload kernel crash dumps to Unraid (bookofshadows)";
+    after = [ "network-online.target" "var-crash-remote.automount" ];
+    wants = [ "network-online.target" ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+    };
+    script = ''
+      shopt -s nullglob
+      dumps=(/var/crash/[0-9]* /var/crash/vmcore*)
+      [[ ''${#dumps[@]} -eq 0 ]] && exit 0
+      mkdir -p /var/crash/remote/titan
+      for d in "''${dumps[@]}"; do
+        cp -r "$d" /var/crash/remote/titan/ && rm -rf "$d"
+        echo "kdump-sync: uploaded $d"
+      done
+    '';
+  };
+
   # ── Filesystem maintenance ─────────────────────────────────────────────────
   services.btrfs.autoScrub = {
     enable = true;
