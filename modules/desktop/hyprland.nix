@@ -11,6 +11,10 @@
   # Disable the LightDM default that xserver.enable brings in
   services.xserver.displayManager.lightdm.enable = lib.mkForce false;
 
+  # Suppress runtime kernel messages (USB, etc.) from appearing over the greeter.
+  # Errors and above still reach tty12 via the redirect below.
+  boot.consoleLogLevel = 3;
+
   # Move kernel console to tty12 just before greetd starts so boot messages
   # are visible throughout boot but never overlap the login screen.
   systemd.services.console-to-tty12 = {
