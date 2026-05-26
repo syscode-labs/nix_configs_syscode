@@ -48,6 +48,9 @@
   # ── Polkit authentication agent ──────────────────────────────────────────
   security.polkit.enable = true;
 
+  # ── Bluetooth manager ─────────────────────────────────────────────────────
+  services.blueman.enable = true;
+
   # ── System packages ───────────────────────────────────────────────────────
   environment.systemPackages = with pkgs; [
     # Bar, launcher, notifications, wallpaper
@@ -57,6 +60,9 @@
     hyprpaper
     hyprlock
     hypridle
+
+    # Terminal
+    ghostty
 
     # Screenshot
     grim
@@ -76,6 +82,7 @@
     wlr-randr
     libnotify
     swayimg
+    btop
 
     # Nerd font for bar glyphs
     nerd-fonts.jetbrains-mono
@@ -89,7 +96,8 @@
     wayland.windowManager.hyprland = {
       enable = true;
       settings = {
-        monitor = ",preferred,auto,1";
+        # 1.5x scale for Framework 13 2256×1504 HiDPI display
+        monitor = ",preferred,auto,1.5";
 
         general = {
           gaps_in = 5;
@@ -101,39 +109,48 @@
         };
 
         decoration = {
-          rounding = 8;
+          rounding = 4;
           blur = {
             enabled = true;
-            size = 4;
+            size = 5;
             passes = 2;
+            vibrancy = 0.1696;
           };
           shadow = {
-            enabled = true;
-            range = 6;
-            render_power = 3;
+            enabled = false;
           };
         };
 
         animations = {
           enabled = true;
-          bezier = "ease, 0.05, 0.9, 0.1, 1.05";
+          bezier = [
+            "easeOutQuint, 0.23, 1, 0.32, 1"
+            "easeInOutCubic, 0.65, 0.05, 0.35, 0.95"
+            "linear, 0, 0, 1, 1"
+          ];
           animation = [
-            "windows, 1, 5, ease"
-            "windowsOut, 1, 5, default, popin 80%"
-            "border, 1, 8, default"
-            "fade, 1, 5, default"
-            "workspaces, 1, 4, default"
+            "windows, 1, 4, easeOutQuint, slide"
+            "windowsOut, 1, 4, easeOutQuint, slide"
+            "border, 1, 5, easeOutQuint"
+            "fade, 1, 2, linear"
+            "workspaces, 1, 4, easeInOutCubic, slide"
           ];
         };
 
         input = {
           kb_layout = "us";
           kb_variant = "intl";
+          kb_options = "compose:caps";
+          repeat_rate = 40;
+          repeat_delay = 250;
+          numlock_by_default = true;
           follow_mouse = 1;
           touchpad = {
             natural_scroll = true;
             disable_while_typing = true;
             tap-to-click = true;
+            clickfinger_behavior = true;
+            scroll_factor = 0.4;
           };
           sensitivity = 0;
         };
@@ -155,14 +172,22 @@
         "$mod" = "SUPER";
 
         bind = [
-          # Core
-          "$mod, Return, exec, alacritty"
-          "$mod, Q, killactive"
-          "$mod, R, exec, wofi --show drun"
+          # Core — omarchy-style bindings
+          "$mod, Return, exec, ghostty"
+          "$mod, W, killactive"
+          "$mod, Space, exec, wofi --show drun"
           "$mod, V, togglefloating"
           "$mod, F, fullscreen"
           "$mod, P, pseudo"
           "$mod, J, togglesplit"
+          "$mod, S, togglespecialworkspace, magic"
+          "$mod SHIFT, S, movetoworkspace, special:magic"
+
+          # Session
+          "$mod, Escape, exec, hyprlock"
+          "$mod SHIFT, Escape, exit,"
+          "$mod CTRL, Escape, exec, systemctl reboot"
+          "$mod SHIFT CTRL, Escape, exec, systemctl poweroff"
 
           # Focus
           "$mod, left,  movefocus, l"
@@ -206,9 +231,6 @@
           # Screenshot: selection → clipboard
           ", Print, exec, grim -g \"$(slurp)\" - | wl-copy"
           "$mod, Print, exec, grim - | wl-copy"
-
-          # Lock
-          "$mod, Escape, exec, hyprlock"
         ];
 
         bindm = [
@@ -234,12 +256,14 @@
           "waybar"
           "mako"
           "hyprpaper"
+          "hypridle"
           "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"
         ];
 
         windowrulev2 = [
           "float, class:pavucontrol"
           "float, class:nm-connection-editor"
+          "float, class:blueman-manager"
           "float, class:org.gnome.Calculator"
           "suppressevent maximize, class:.*"
         ];
@@ -252,11 +276,18 @@
       settings = [{
         layer = "top";
         position = "top";
-        height = 32;
-        spacing = 4;
+        height = 26;
+        spacing = 0;
         modules-left = [ "hyprland/workspaces" "hyprland/window" ];
         modules-center = [ "clock" ];
-        modules-right = [ "pulseaudio" "network" "battery" "tray" ];
+        modules-right = [
+          "cpu"
+          "pulseaudio"
+          "bluetooth"
+          "network"
+          "battery"
+          "tray"
+        ];
 
         "hyprland/workspaces" = {
           disable-scroll = true;
@@ -264,18 +295,33 @@
           format = "{name}";
         };
         "hyprland/window" = {
-          max-length = 50;
+          max-length = 60;
+          separate-outputs = true;
         };
         clock = {
           format = "  {:%H:%M}";
-          format-alt = "  {:%Y-%m-%d}";
+          format-alt = "  {:%a %d %b}";
           tooltip-format = "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>";
         };
+        cpu = {
+          format = "  {usage}%";
+          interval = 2;
+          on-click = "ghostty -e btop";
+        };
         battery = {
-          states = { warning = 30; critical = 15; };
+          states = {
+            warning = 30;
+            critical = 15;
+          };
           format = "{icon} {capacity}%";
           format-charging = " {capacity}%";
-          format-icons = [ "" "" "" "" "" ];
+          format-icons = [
+            ""
+            ""
+            ""
+            ""
+            ""
+          ];
         };
         network = {
           format-wifi = "  {essid}";
@@ -284,11 +330,20 @@
           tooltip-format = "{ifname}: {ipaddr}/{cidr}";
           on-click = "nm-connection-editor";
         };
+        bluetooth = {
+          format = " {status}";
+          format-connected = " {device_alias}";
+          format-connected-battery = " {device_alias} {device_battery_percentage}%";
+          tooltip-format = "{controller_alias}\t{controller_address}";
+          tooltip-format-connected = "{controller_alias}\t{controller_address}\n\n{device_enumerate}";
+          on-click = "blueman-manager";
+        };
         pulseaudio = {
           format = "{icon} {volume}%";
           format-muted = " muted";
           format-icons = { default = [ "" "" "" ]; };
           on-click = "pavucontrol";
+          on-click-right = "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
         };
         tray = { spacing = 8; };
       }];
@@ -296,13 +351,13 @@
       style = ''
         * {
           font-family: "JetBrainsMono Nerd Font", monospace;
-          font-size: 13px;
+          font-size: 12px;
           border: none;
           border-radius: 0;
           min-height: 0;
         }
         window#waybar {
-          background-color: rgba(26, 27, 38, 0.92);
+          background-color: rgba(26, 27, 38, 0.95);
           color: #c0caf5;
         }
         #workspaces button {
@@ -318,14 +373,17 @@
           color: #c0caf5;
           background: rgba(122, 162, 247, 0.1);
         }
-        #window { color: #9ece6a; }
-        #clock     { color: #7dcfff; padding: 0 12px; }
-        #battery   { padding: 0 10px; }
-        #network   { padding: 0 10px; }
-        #pulseaudio { padding: 0 10px; }
-        #tray       { padding: 0 8px; }
+        #window        { color: #9ece6a; padding: 0 8px; }
+        #clock         { color: #7dcfff; padding: 0 12px; }
+        #cpu           { color: #e0af68; padding: 0 10px; }
+        #battery       { padding: 0 10px; }
+        #network       { padding: 0 10px; }
+        #bluetooth     { padding: 0 10px; }
+        #pulseaudio    { padding: 0 10px; }
+        #tray          { padding: 0 8px; }
         #battery.warning  { color: #e0af68; }
         #battery.critical { color: #f7768e; }
+        #bluetooth.connected { color: #7aa2f7; }
       '';
     };
 
@@ -336,7 +394,7 @@
         background-color = "#1a1b26";
         text-color = "#c0caf5";
         border-color = "#7aa2f7";
-        border-radius = 8;
+        border-radius = 4;
         border-size = 2;
         default-timeout = 5000;
         font = "JetBrainsMono Nerd Font 11";
@@ -358,26 +416,26 @@
         allow_markup = true;
         no_actions = true;
         insensitive = true;
-        term = "alacritty";
+        term = "ghostty";
       };
       style = ''
         window {
           background-color: #1a1b26;
           border: 2px solid #7aa2f7;
-          border-radius: 12px;
+          border-radius: 8px;
         }
         #input {
           color: #c0caf5;
           background-color: #24283b;
           border: none;
-          border-radius: 8px;
+          border-radius: 6px;
           margin: 8px;
           padding: 6px 12px;
         }
         #entry {
           color: #c0caf5;
           padding: 6px 12px;
-          border-radius: 6px;
+          border-radius: 4px;
         }
         #entry:selected {
           background-color: #7aa2f7;
@@ -385,6 +443,29 @@
         }
         #text { font-family: "JetBrainsMono Nerd Font"; }
       '';
+    };
+
+    # ── hypridle ─────────────────────────────────────────────────────────────
+    services.hypridle = {
+      enable = true;
+      settings = {
+        general = {
+          after_sleep_cmd = "hyprctl dispatch dpms on";
+          ignore_dbus_inhibit = false;
+          lock_cmd = "hyprlock";
+        };
+        listener = [
+          {
+            timeout = 300;
+            on-timeout = "hyprlock";
+          }
+          {
+            timeout = 600;
+            on-timeout = "hyprctl dispatch dpms off";
+            on-resume = "hyprctl dispatch dpms on";
+          }
+        ];
+      };
     };
 
     # Hyprpaper minimal config (set a wallpaper later via hyprpaper.conf)
