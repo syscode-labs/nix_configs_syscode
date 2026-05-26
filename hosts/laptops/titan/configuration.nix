@@ -40,6 +40,9 @@
   # The YubiKey (slot 2, HMAC-SHA1 challenge-response) unlocks the LUKS
   # volume at boot. twoFactor = true means the passphrase is still required
   # alongside the YubiKey response.
+  # gracePeriod = 0: on wrong passphrase the initrd exits immediately rather
+  # than retrying — re-challenging hidraw1 on retry triggers a kernel panic
+  # (USB HID bug on kernel 6.18). Wrong passphrase → reboot and try again.
   boot.initrd.luks.yubikeySupport = true;
   boot.initrd.luks.devices."nixos-enc" = {
     device = "/dev/nvme0n1p2";
@@ -47,7 +50,7 @@
     yubikey = {
       slot = 2;
       twoFactor = true;
-      gracePeriod = 30;
+      gracePeriod = 0;
       storage.device = "/dev/nvme0n1p1";
     };
   };
