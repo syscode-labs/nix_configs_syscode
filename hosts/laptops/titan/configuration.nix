@@ -160,6 +160,10 @@
     fprintAuth = true;
     u2fAuth = true;
   };
+  security.pam.services.greetd = {
+    fprintAuth = true;
+    u2fAuth = true;
+  };
 
   # ── Sound ─────────────────────────────────────────────────────────────────
   services.pulseaudio.enable = false;
