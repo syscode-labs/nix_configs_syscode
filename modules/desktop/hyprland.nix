@@ -493,7 +493,7 @@
         style = ''
           * {
             font-family: "JetBrainsMono Nerd Font", monospace;
-            font-size: 10px;
+            font-size: 14px;
             border: none;
             border-radius: 0;
             min-height: 0;
