@@ -77,6 +77,8 @@
   services.logind.settings.Login = {
     HandleLidSwitch = "suspend";
     HandleLidSwitchDocked = "ignore";
+    HandlePowerKey = "lock";
+    HandlePowerKeyLongPress = "poweroff";
   };
 
   # Enable CUPS for printing
