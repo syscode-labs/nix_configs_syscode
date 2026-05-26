@@ -92,13 +92,15 @@
     swayimg
     btop
 
-    # Nerd font for bar glyphs
-    nerd-fonts.jetbrains-mono
-
     # Theme packages (available system-wide for GTK/cursor/icon tooling)
     tokyonight-gtk-theme
     papirus-icon-theme
     bibata-cursors
+  ];
+
+  # ── Fonts ─────────────────────────────────────────────────────────────────
+  fonts.packages = with pkgs; [
+    nerd-fonts.jetbrains-mono
   ];
 
   # ── Sound (pipewire already in laptops; ensure wireplumber is active) ─────
