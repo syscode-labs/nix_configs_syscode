@@ -52,7 +52,8 @@ in
     };
   };
 
-  # Fish shell — plugins managed declaratively; no OMF needed.
+  # Fish shell — plugins managed declaratively; no OMF needed on Linux.
+  # interactiveShellInit is intentionally absent: chezmoi's config.fish owns it.
   programs.fish = {
     enable = true;
     plugins = [
@@ -63,24 +64,6 @@ in
       { name = "fzf-fish"; src = pkgs.fishPlugins.fzf-fish.src; }
       { name = "plugin-git"; src = pkgs.fishPlugins.plugin-git.src; }
     ];
-    interactiveShellInit = ''
-      set -e fish_greeting
-      set -gx EDITOR vim
-      set -gx GOPATH "$HOME/go"
-      set -gx GRANTED_ENABLE_AUTO_REASSUME true
-      set -gx ENABLE_EXPERIMENTAL_MCP_CLI true
-
-      if test -f "$HOME/.config/bitwarden/secrets.fish"
-          source "$HOME/.config/bitwarden/secrets.fish"
-      end
-
-      mise activate fish | source
-      zoxide init --cmd cd fish | source
-
-      fish_add_path "$HOME/go/bin"
-      fish_add_path "$HOME/.krew/bin"
-      fish_add_path "$HOME/bin"
-    '';
   };
 
   # This value determines the Home Manager release compatibility

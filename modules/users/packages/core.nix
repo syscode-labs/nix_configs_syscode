@@ -12,6 +12,7 @@
     fd
     fzf
     ripgrep
+    starship
     zoxide
   ];
 }

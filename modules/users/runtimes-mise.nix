@@ -35,6 +35,9 @@ in
   # Ensure the executable is present even when the HM program module does not add it.
   home.packages = [ pkgs.mise ];
 
+  # Expose mise at the path chezmoi's config.fish expects on all platforms.
+  home.file.".local/bin/mise".source = "${pkgs.mise}/bin/mise";
+
   xdg.configFile."mise/config.toml".text = lib.concatStringsSep "\n"
     (
       [ "[tools]" ]
