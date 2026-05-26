@@ -58,6 +58,7 @@
 
     # Laptop utilities
     brightnessctl
+    chezmoi
 
     # Common desktop apps
     firefox
