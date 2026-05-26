@@ -65,6 +65,9 @@
     bitwarden-cli
   ];
 
+  # YubiKey udev rules (FIDO2/U2F access for non-root)
+  services.udev.packages = with pkgs; [ yubikey-personalization libu2f-host ];
+
   # Laptop-specific services
   services.upower.enable = true;
   services.logind.settings.Login = {
