@@ -274,6 +274,8 @@
           "float, class:nm-connection-editor"
           "float, class:blueman-manager"
           "float, class:org.gnome.Calculator"
+          "float, class:com.mitchellh.ghostty, title:battery-info"
+          "size 640 340, class:com.mitchellh.ghostty, title:battery-info"
           "suppressevent maximize, class:.*"
         ];
       };
@@ -331,7 +333,7 @@
             ""
             ""
           ];
-          on-click = "ghostty --initial-window-size-columns=80 --initial-window-size-rows=24 -e bash -c 'watch -n2 upower -i $(upower -e | grep -i bat | head -1)'";
+          on-click = "ghostty --title=battery-info -e bash -c 'watch -n2 upower -i $(upower -e | grep -i bat | head -1)'";
         };
         network = {
           format-wifi = "  {essid}";
