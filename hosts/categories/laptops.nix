@@ -21,6 +21,9 @@
   powerManagement.enable = true;
   services.thermald.enable = true;
 
+  # Reduce swap pressure on SSD
+  boot.kernel.sysctl."vm.swappiness" = 10;
+
   # Networking
   networking.networkmanager.enable = true;
 
@@ -70,6 +73,7 @@
   services.udev.extraRules = ''
     KERNEL=="hidraw*", SUBSYSTEM=="hidraw", ATTRS{idVendor}=="1050", GROUP="plugdev", MODE="0660"
     ACTION=="add", SUBSYSTEM=="backlight", RUN+="${pkgs.coreutils}/bin/chgrp video /sys/class/backlight/%k/brightness", RUN+="${pkgs.coreutils}/bin/chmod g+w /sys/class/backlight/%k/brightness"
+    ACTION=="add", KERNEL=="BAT*", SUBSYSTEM=="power_supply", ATTR{charge_control_end_threshold}="80", RUN+="${pkgs.coreutils}/bin/chmod a+w /sys/class/power_supply/%k/charge_control_end_threshold"
   '';
   users.groups.plugdev = { };
 

@@ -370,6 +370,7 @@
             "wireplumber"
             "cpu"
             "power-profiles-daemon"
+            "custom/battery-limit"
             "battery"
           ];
 
@@ -448,6 +449,14 @@
             };
             on-click = "ghostty --title=battery-info -e bash -c 'watch -n2 upower -i $(upower -e | grep -i bat | head -1)'";
           };
+          "custom/battery-limit" = {
+            interval = 5;
+            exec = "cat /sys/class/power_supply/BAT1/charge_control_end_threshold 2>/dev/null";
+            format = "{}% 󱐋";
+            tooltip = true;
+            tooltip-format = "Battery charge limit: {}% — click to toggle 80/100";
+            on-click = "bash -c 'cur=$(cat /sys/class/power_supply/BAT1/charge_control_end_threshold); [ \"$cur\" -le 80 ] && echo 100 > /sys/class/power_supply/BAT1/charge_control_end_threshold || echo 80 > /sys/class/power_supply/BAT1/charge_control_end_threshold'";
+          };
           network = {
             format-icons = [ "󰤯" "󰤟" "󰤢" "󰤥" "󰤨" ];
             format = "{icon}";
@@ -515,7 +524,8 @@
             color: #c0caf5;
           }
           #clock, #cpu, #battery, #network, #bluetooth,
-          #wireplumber, #tray, #power-profiles-daemon {
+          #wireplumber, #tray, #power-profiles-daemon,
+          #custom-battery-limit {
             background-color: transparent;
             min-width: 12px;
             margin-right: 13px;
@@ -524,6 +534,8 @@
           #battery.warning  { color: #e0af68; }
           #battery.critical { color: #f7768e; }
           #bluetooth.connected { color: #7aa2f7; }
+          #custom-battery-limit { color: #565f89; }
+          #custom-battery-limit.charging { color: #9ece6a; }
         '';
       };
 
