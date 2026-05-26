@@ -21,6 +21,7 @@
       Type = "oneshot";
       ExecStart = pkgs.writeShellScript "redirect-console" ''
         ${pkgs.python3}/bin/python3 -c 'import fcntl,os,termios; fd=os.open("/dev/tty12",os.O_RDWR|os.O_NOCTTY); fcntl.ioctl(fd,termios.TIOCCONS); os.close(fd)'
+        printf '\033c' > /dev/tty1
       '';
     };
   };
