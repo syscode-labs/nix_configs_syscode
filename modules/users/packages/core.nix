@@ -12,6 +12,7 @@
     fd
     fzf
     ripgrep
+    pay-respects
     starship
     zoxide
   ];
