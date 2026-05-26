@@ -516,10 +516,12 @@
       XCURSOR_SIZE = "24";
     };
 
-    # Hyprpaper minimal config (set a wallpaper later via hyprpaper.conf)
     xdg.configFile."hypr/hyprpaper.conf".text =
       let
-        wp = "${pkgs.nixos-artwork.wallpapers.simple-dark-gray}/share/backgrounds/nixos/nix-wallpaper-simple-dark-gray.png";
+        wp = builtins.fetchurl {
+          url = "https://raw.githubusercontent.com/henrysipp/omarchy-nix/main/config/themes/wallpapers/1-Pawel-Czerwinski-Abstract-Purple-Blue.jpg";
+          sha256 = "0n30217mf6nd400zzd8adn2p14k39dzllc9bqvwfsanj4ypghdls"; # pragma: allowlist secret
+        };
       in
       ''
         splash = false
