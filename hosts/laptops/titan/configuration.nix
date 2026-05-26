@@ -151,6 +151,12 @@
   };
 
   # ── User ──────────────────────────────────────────────────────────────────
+  # Immutable shadow: NixOS always writes hashedPasswordFile to /etc/shadow.
+  # With mutableUsers = true (default), NixOS skips the password update for
+  # existing users — hashedPasswordFile is silently ignored (NixOS FIXME in
+  # update-users-groups.pl). Setting false fixes this.
+  users.mutableUsers = false;
+
   users.users.giovanni = {
     isNormalUser = true;
     description = "Giovanni Ferri";
