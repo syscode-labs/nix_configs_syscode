@@ -145,6 +145,10 @@
           disable_hyprland_logo = true;
         };
 
+        ecosystem = {
+          no_update_news = true;
+        };
+
         "$mod" = "SUPER";
 
         bind = [
