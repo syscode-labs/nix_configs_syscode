@@ -20,7 +20,9 @@
   # Extra modules needed for LUKS + YubiKey unlock from the EFI partition
   boot.initrd.kernelModules = [ "vfat" "nls_cp437" "nls_iso8859-1" "usbhid" ];
   # S3 (deep) is not supported on this hardware; s2idle (S0ix) is the correct mode
-  boot.kernelParams = [ "mem_sleep_default=s2idle" ];
+  # loglevel=3: only errors reach the console — keeps greetd framebuffer clean
+  boot.kernelParams = [ "mem_sleep_default=s2idle" "quiet" "loglevel=3" ];
+  boot.consoleLogLevel = 3;
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
   # linux-firmware ships MT7922 BT firmware zstd-compressed; enable kernel decompression

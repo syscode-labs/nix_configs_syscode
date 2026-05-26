@@ -11,6 +11,18 @@
   # Disable the LightDM default that xserver.enable brings in
   services.xserver.displayManager.lightdm.enable = lib.mkForce false;
 
+  # Move kernel console to tty12 just before greetd starts so boot messages
+  # are visible throughout boot but never overlap the login screen.
+  systemd.services.console-to-tty12 = {
+    description = "Redirect kernel console to tty12 before login screen";
+    before = [ "greetd.service" ];
+    wantedBy = [ "greetd.service" ];
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = "${pkgs.kbd}/bin/setconsole /dev/tty12";
+    };
+  };
+
   services.greetd = {
     enable = true;
     settings = {
