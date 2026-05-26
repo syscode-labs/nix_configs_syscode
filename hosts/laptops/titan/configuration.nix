@@ -4,6 +4,7 @@
   imports = [
     ./hardware-configuration.nix
     ../../categories/laptops.nix
+    ../../../modules/desktop/hyprland.nix
   ];
 
   networking.hostName = "titan";

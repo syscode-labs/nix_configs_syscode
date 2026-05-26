@@ -14,8 +14,8 @@
   boot.loader.efi.canTouchEfiVariables = true;
 
   # Desktop environment
-  services.xserver.displayManager.gdm.enable = true;
-  services.xserver.desktopManager.gnome.enable = true;
+  services.displayManager.gdm.enable = true;
+  services.desktopManager.gnome.enable = true;
 
   # Third laptop - lighter package set
   environment.systemPackages = with pkgs; [
