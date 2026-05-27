@@ -17,7 +17,6 @@
   sops.secrets.giovanni_hashed_password = { neededForUsers = true; };
 
   # ── Boot ──────────────────────────────────────────────────────────────────
-  # Extra modules needed for LUKS + YubiKey unlock from the EFI partition
   boot.initrd.kernelModules = [ "vfat" "nls_cp437" "nls_iso8859-1" "usbhid" ];
   # S3 (deep) is not supported on this hardware; s2idle (S0ix) is the correct mode
   boot.kernelParams = [ "mem_sleep_default=s2idle" ];
@@ -40,24 +39,15 @@
     timeout = 0;
   };
 
-  # ── LUKS / YubiKey ────────────────────────────────────────────────────────
-  # The YubiKey (slot 2, HMAC-SHA1 challenge-response) unlocks the LUKS
-  # volume at boot. twoFactor = true means the passphrase is still required
-  # alongside the YubiKey response.
-  # gracePeriod = 20: wait up to 20 s for USB enumeration so the YubiKey is
-  # visible before the initrd challenges it. The old gracePeriod = 0 was set
-  # to avoid a hidraw1 retry panic (kernel 6.18 USB HID bug) but it also
-  # prevented detection entirely. With 6.18.1+ that panic appears resolved.
-  boot.initrd.luks.yubikeySupport = true;
+  # ── LUKS / FIDO2 ──────────────────────────────────────────────────────────
+  # systemd stage-1 handles FIDO2 unlock (slot 3) via systemd-cryptenroll.
+  # Slot 2 is a plain recovery passphrase fallback.
+  # token-timeout=10: wait 10 s for the YubiKey before falling back to prompt.
+  boot.initrd.systemd.enable = true;
   boot.initrd.luks.devices."nixos-enc" = {
     device = "/dev/nvme0n1p2";
     preLVM = true;
-    yubikey = {
-      slot = 2;
-      twoFactor = true;
-      gracePeriod = 20;
-      storage.device = "/dev/nvme0n1p1";
-    };
+    crypttabExtraOpts = [ "fido2-device=auto" "token-timeout=10" ];
   };
 
   # ── Kernel crash dump ─────────────────────────────────────────────────────
