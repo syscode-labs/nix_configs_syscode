@@ -36,7 +36,10 @@ in
   home.packages = [ pkgs.mise ];
 
   # Expose mise at the path chezmoi's config.fish expects on all platforms.
-  home.file.".local/bin/mise".source = "${pkgs.mise}/bin/mise";
+  home.activation.miseLocalBin = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    mkdir -p "$HOME/.local/bin"
+    ln -sf ${pkgs.mise}/bin/mise "$HOME/.local/bin/mise"
+  '';
 
   xdg.configFile."mise/config.toml".text = lib.concatStringsSep "\n"
     (
