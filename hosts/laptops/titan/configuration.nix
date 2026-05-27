@@ -147,6 +147,10 @@
     u2fAuth = true;
   };
   security.pam.services.login = {
+    # Suppress the mkDefault rules injected by services.fprintd.enable and
+    # security.pam.u2f.enable; the auth stack is built manually below.
+    fprintAuth = false;
+    u2fAuth = false;
     # MFA stack:  fprint+yubikey  >  fprint-only  >  password
     # To harden once MFA is validated: remove fprint_permit and unix rules.
     rules.auth = {
