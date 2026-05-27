@@ -190,7 +190,6 @@
   };
 
   programs.fish.enable = true;
-  services.getty.autologinUser = "giovanni";
 
   security.sudo.extraRules = [
     {
