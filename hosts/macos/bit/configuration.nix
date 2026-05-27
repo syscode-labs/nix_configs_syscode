@@ -1,13 +1,14 @@
-{ pkgs, lib, userName, ... }:
+{ pkgs, userName, ... }:
 
 {
   networking.hostName = "bit";
   networking.computerName = "bit";
 
+  system.primaryUser = userName;
+
   nixpkgs.config.allowUnfree = true;
 
-  # ── Nix daemon ────────────────────────────────────────────────────────────
-  services.nix-daemon.enable = true;
+  # ── Nix ───────────────────────────────────────────────────────────────────
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
   # ── Shell ─────────────────────────────────────────────────────────────────
