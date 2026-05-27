@@ -251,7 +251,6 @@
     ];
 
     casks = [
-      "adoptopenjdk8"
       "alacritty"
       "android-platform-tools"
       "aws-vault"
@@ -273,7 +272,6 @@
       "microsoft-remote-desktop"
       "multipass"
       "ngrok"
-      "osxfuse"
       "scribus"
       "stats"
       "timemachineeditor"
