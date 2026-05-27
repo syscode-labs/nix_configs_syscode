@@ -9,6 +9,8 @@
   nixpkgs.config.allowUnfree = true;
 
   # ── Nix ───────────────────────────────────────────────────────────────────
+  # nixbld UIDs start at 300 (pre-Sequoia install); suppress the Sequoia migration check
+  ids.uids.nixbld = 300;
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
   # ── Shell ─────────────────────────────────────────────────────────────────
