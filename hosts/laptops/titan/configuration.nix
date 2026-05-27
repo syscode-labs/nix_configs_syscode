@@ -39,6 +39,8 @@
     timeout = 0;
   };
 
+  boot.plymouth.enable = true;
+
   # ── LUKS / FIDO2 ──────────────────────────────────────────────────────────
   # systemd stage-1 handles FIDO2 unlock (slot 3) via systemd-cryptenroll.
   # Slot 2 is a plain recovery passphrase fallback.
