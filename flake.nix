@@ -20,9 +20,13 @@
       url = "github:nix-community/nixvim";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    nix-darwin = {
+      url = "github:LnL7/nix-darwin/master";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, home-manager, sops-nix, deploy-rs, nixvim, nixos-hardware, ... }@inputs:
+  outputs = { self, nixpkgs, home-manager, sops-nix, deploy-rs, nixvim, nixos-hardware, nix-darwin, ... }@inputs:
     let
       # Machine-agnostic identity defaults (override via env when needed).
       defaultUser =
@@ -91,6 +95,30 @@
                 nixvim.homeModules.nixvim
               ];
             }
+          ] ++ extraModules;
+        };
+
+      # Helper function to create nix-darwin configurations
+      mkDarwinHost =
+        { hostname
+        , system ? "x86_64-darwin"
+        , userName ? defaultUser
+        , userGitName ? defaultGitName
+        , userGitEmail ? defaultGitEmail
+        , extraModules ? [ ]
+        }:
+        nix-darwin.lib.darwinSystem {
+          inherit system;
+          specialArgs = {
+            inherit
+              inputs
+              userName
+              userGitName
+              userGitEmail
+              ;
+          };
+          modules = [
+            ./hosts/macos/${hostname}/configuration.nix
           ] ++ extraModules;
         };
 
@@ -185,6 +213,14 @@
           hostname = "example-experiment";
           category = "experiments";
           system = "x86_64-linux";
+        };
+      };
+
+      # macOS (nix-darwin) configurations
+      darwinConfigurations = {
+        bit = mkDarwinHost {
+          hostname = "bit";
+          system = "x86_64-darwin";
         };
       };
 
