@@ -22,6 +22,10 @@ update:
     nix flake update
     @echo "Flake inputs updated. Review flake.lock and commit."
 
+# Apply nix-darwin configuration on this Mac
+switch-mac host="bit":
+    /run/current-system/sw/bin/darwin-rebuild switch --flake .#{{host}}
+
 # Deploy to a specific host
 deploy host:
     deploy .#{{host}}
