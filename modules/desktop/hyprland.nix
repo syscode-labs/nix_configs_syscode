@@ -46,7 +46,10 @@
   # ── XDG portals ───────────────────────────────────────────────────────────
   xdg.portal = {
     enable = true;
-    extraPortals = [ pkgs.xdg-desktop-portal-hyprland ];
+    extraPortals = [
+      pkgs.xdg-desktop-portal-hyprland
+      pkgs.xdg-desktop-portal-gtk
+    ];
   };
 
   # ── Polkit authentication agent ──────────────────────────────────────────
@@ -68,17 +71,30 @@
     # Terminal
     ghostty
 
-    # Screenshot + color picker
+    # Screenshot + annotation + color picker
     grim
     slurp
+    satty
     hyprpicker
+
+    # Screen recording
+    obs-studio
+    gpu-screen-recorder
 
     # Clipboard
     wl-clipboard
 
-    # Media & audio control
+    # Media
+    mpv
     playerctl
     pavucontrol
+    pamixer
+
+    # Volume / brightness OSD
+    swayosd
+
+    # Brightness (used in keybinds)
+    brightnessctl
 
     # Polkit agent
     polkit_gnome
@@ -86,11 +102,47 @@
     # Blue light filter
     hyprsunset
 
+    # Browser
+    chromium
+
+    # File management
+    nautilus
+    gnome-disk-utility
+
+    # Productivity
+    libreoffice-fresh
+    evince
+    obsidian
+    typora
+
+    # Communication & notes
+    signal-desktop
+    localsend
+
+    # Music
+    spotify
+
+    # Image viewer
+    imv
+
+    # Dev tools
+    lazygit
+    imagemagick
+
+    # System info
+    fastfetch
+
+    # Calculator
+    gnome-calculator
+
     # Misc Wayland utils
     wlr-randr
     libnotify
     swayimg
     btop
+
+    # Video editing
+    kdePackages.kdenlive
 
     # Theme packages (available system-wide for GTK/cursor/icon tooling)
     tokyonight-gtk-theme
@@ -322,6 +374,7 @@
             "hyprpaper"
             "hypridle"
             "hyprsunset"
+            "swayosd-server"
             "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"
           ];
 
