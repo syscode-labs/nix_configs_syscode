@@ -57,7 +57,6 @@ in
   programs.fish = {
     enable = true;
     plugins = [
-      { name = "tide"; src = pkgs.fishPlugins.tide.src; }
       { name = "done"; src = pkgs.fishPlugins.done.src; }
       { name = "sponge"; src = pkgs.fishPlugins.sponge.src; }
       { name = "autopair"; src = pkgs.fishPlugins.autopair.src; }
