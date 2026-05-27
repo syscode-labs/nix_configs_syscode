@@ -5,6 +5,11 @@
     ./hardware-configuration.nix
     ../../categories/laptops.nix
     ../../../modules/desktop/hyprland.nix
+    # Login PAM policy — switch file to change:
+    #   transition.nix      fprint+yubikey > fprint > password
+    #   fprint-fallback.nix fprint+yubikey > fprint
+    #   hardened.nix        fprint+yubikey only
+    ./pam-login/transition.nix
   ];
 
   networking.hostName = "titan";
@@ -145,36 +150,6 @@
   security.pam.services.hyprlock = {
     fprintAuth = true;
     u2fAuth = true;
-  };
-  security.pam.services.login = {
-    # Suppress the mkDefault rules injected by services.fprintd.enable and
-    # security.pam.u2f.enable; the auth stack is built manually below.
-    fprintAuth = false;
-    u2fAuth = false;
-    # MFA stack:  fprint+yubikey  >  fprint-only  >  password
-    # To harden once MFA is validated: remove fprint_permit and unix rules.
-    rules.auth = {
-      # Step 1: scan finger. Fail → skip 2 rules → land at default unix (password).
-      fprint_primary = {
-        order = 10200;
-        control = "[success=ok default=2]";
-        modulePath = "${pkgs.fprintd}/lib/security/pam_fprintd.so";
-      };
-      # Step 2: touch YubiKey. Success → fully authenticated (MFA). Fail → continue.
-      u2f_mfa = {
-        order = 10300;
-        control = "[success=done default=ignore]";
-        modulePath = "${pkgs.pam_u2f}/lib/security/pam_u2f.so";
-        args = [ "cue" ];
-      };
-      # Step 3: fprint succeeded but YubiKey not touched → still accept.
-      fprint_permit = {
-        order = 10400;
-        control = "[success=done default=bad]";
-        modulePath = "${pkgs.linux-pam}/lib/security/pam_permit.so";
-      };
-      # unix password (order 11600, auto-added) is the fallback when fprint fails.
-    };
   };
   security.pam.services.greetd = {
     fprintAuth = true;
