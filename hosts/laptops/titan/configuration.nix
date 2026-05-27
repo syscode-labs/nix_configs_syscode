@@ -161,6 +161,10 @@
   security.pam.services.greetd = {
     fprintAuth = true;
     u2fAuth = true;
+    # Without this override, greetd's PAM stack sets try_first_pass on pam_unix,
+    # which causes it to replay a cached (wrong) password on retry instead of
+    # prompting fresh. Disabling forces a new password prompt each time.
+    rules.auth.unix.settings.try_first_pass = lib.mkForce false;
   };
 
   # ── Sound ─────────────────────────────────────────────────────────────────
