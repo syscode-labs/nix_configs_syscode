@@ -1,5 +1,10 @@
 # NixOS Configuration
 
+[![CI](https://github.com/syscode-labs/nix_configs_syscode/actions/workflows/ci.yml/badge.svg)](https://github.com/syscode-labs/nix_configs_syscode/actions/workflows/ci.yml)
+[![NixOS](https://img.shields.io/badge/NixOS-unstable-5277C3?logo=nixos&logoColor=white)](https://nixos.org)
+[![Flakes](https://img.shields.io/badge/nix-flakes-blue?logo=nixos&logoColor=white)](https://nixos.wiki/wiki/Flakes)
+[![License](https://img.shields.io/github/license/syscode-labs/nix_configs_syscode)](LICENSE)
+
 Personal NixOS configuration using flakes, with categorized hosts (laptops, VPS, servers, experiments) and fully automated zero-touch installation. Supports centralized deployment from a main laptop to remote machines without storing git credentials anywhere.
 
 ## Repository Structure
