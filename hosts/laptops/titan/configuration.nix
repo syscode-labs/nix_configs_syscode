@@ -36,9 +36,7 @@
     timeout = 0;
   };
 
-  # Plymouth disabled: intercepts LUKS passphrase requests via Plymouth daemon,
-  # blocking the console dispatcher — fallback passphrase after FIDO2 timeout is never shown.
-  boot.plymouth.enable = false;
+  boot.plymouth.enable = true;
 
   # ── LUKS / FIDO2 ──────────────────────────────────────────────────────────
   # systemd stage-1 handles FIDO2 unlock (slot 3) via systemd-cryptenroll.
