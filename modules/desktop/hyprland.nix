@@ -34,7 +34,7 @@
     enable = true;
     settings = {
       default_session = {
-        command = "${pkgs.tuigreet}/bin/tuigreet --time --remember --remember-session --asterisks --width 60 --greeting \"titan\" --theme \"border=#7aa2f7;text=#c0caf5;prompt=#bb9af7;time=#7dcfff;action=#9ece6a;button=#7aa2f7;container=#1a1b26;input=#c0caf5\" --cmd ${pkgs.writeShellScript "start-hyprland" ''
+        command = "${pkgs.tuigreet}/bin/tuigreet --time --remember --remember-session --asterisks --width 60 --greeting \"${config.networking.hostName}\" --theme \"border=#7aa2f7;text=#c0caf5;prompt=#bb9af7;time=#7dcfff;action=#9ece6a;button=#7aa2f7;container=#1a1b26;input=#c0caf5\" --cmd ${pkgs.writeShellScript "start-hyprland" ''
           printf '\033c' > /dev/tty1
           exec Hyprland
         ''}";

@@ -3,8 +3,7 @@
 {
   imports = [
     ./hardware-configuration.nix
-    ../../categories/laptops.nix
-    ../../../modules/desktop/hyprland.nix
+    ../../categories/nix-laptops.nix
     # Login PAM policy — switch file to change:
     #   transition.nix      fprint+yubikey > fprint > password
     #   fprint-fallback.nix fprint+yubikey > fprint
@@ -13,13 +12,6 @@
   ];
 
   networking.hostName = "titan";
-
-  # ── Secrets ───────────────────────────────────────────────────────────────
-  sops.defaultSopsFile = ../../../secrets/common/secrets.yaml;
-  sops.age.keyFile = "/var/lib/sops-nix/key.txt";
-
-  sops.secrets.tailscale_oauth_secret = { };
-  sops.secrets.giovanni_hashed_password = { neededForUsers = true; };
 
   # ── Boot ──────────────────────────────────────────────────────────────────
   boot.initrd.kernelModules = [ "vfat" "nls_cp437" "nls_iso8859-1" "usbhid" ];
@@ -145,10 +137,9 @@
   security.pam.u2f = {
     enable = true;
     control = "required"; # timeout/no-touch → deny, not fall-through
-    settings = {
-      cue = true;
-      pinverification = true; # prompt for FIDO2 PIN
-    };
+    settings.cue = true;
+    # pinverification requires: FIDO2 PIN set (ykman fido access change-pin)
+    # + credential re-enrolled with UV (pamu2fcfg -u giovanni --pin-verification)
   };
 
   security.pam.services.hyprlock = {
@@ -174,34 +165,7 @@
     pulse.enable = true;
   };
 
-  # ── User ──────────────────────────────────────────────────────────────────
-  # Immutable shadow: NixOS always writes hashedPasswordFile to /etc/shadow.
-  # With mutableUsers = true (default), NixOS skips the password update for
-  # existing users — hashedPasswordFile is silently ignored (NixOS FIXME in
-  # update-users-groups.pl). Setting false fixes this.
-  users.mutableUsers = false;
-
-  users.users.giovanni = {
-    isNormalUser = true;
-    description = "Giovanni Ferri";
-    shell = pkgs.fish;
-    hashedPasswordFile = config.sops.secrets.giovanni_hashed_password.path;
-    extraGroups = [ "networkmanager" "wheel" "docker" "video" "audio" "plugdev" ];
-    openssh.authorizedKeys.keys = [
-      "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBDyv3qXnOMs2QwNPmoVwsCokSJBBDqCoQNIZ8NldVekbD4G6fz5p5cRo0ErjF0Z6T0iXa+wHfu/TcPJUd29xKnQ= giovanni@bit.lan"
-      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINfXaazSk3L5JdrJ/i41/8wGZeG6iwIdb8YAyzfmm8UK giovanni@bit.lan"
-      "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBK+cBXxt5LdrJsuOHhFNCp8AyBTJKxiCee2thfRbqtZ9YNW6HcsqNXuXp7Z77Srg8CAWj1YYhYs1NjYrBcS/B2A= giovanni@bit.lan"
-    ];
-  };
-
-  programs.fish.enable = true;
-
-  security.sudo.extraRules = [
-    {
-      groups = [ "wheel" ];
-      commands = [{ command = "ALL"; options = [ "NOPASSWD" ]; }];
-    }
-  ];
+  users.users.giovanni.extraGroups = lib.mkAfter [ "docker" ];
 
   # ── Programs & services ───────────────────────────────────────────────────
   programs.gnupg.agent = {
