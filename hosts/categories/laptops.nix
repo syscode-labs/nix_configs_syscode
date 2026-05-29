@@ -35,7 +35,11 @@
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
+    jack.enable = true;
   };
+
+  # Redistributable firmware (covers most WiFi/BT/GPU; no proprietary blobs)
+  hardware.enableRedistributableFirmware = true;
 
   # Bluetooth
   hardware.bluetooth.enable = true;
@@ -67,6 +71,15 @@
     # Password manager + SSH agent
     bitwarden-desktop
     bitwarden-cli
+
+    # Multimedia
+    ffmpeg
+    gst_all_1.gstreamer
+    gst_all_1.gst-plugins-base
+    gst_all_1.gst-plugins-good
+    gst_all_1.gst-plugins-bad
+    gst_all_1.gst-plugins-ugly
+    gst_all_1.gst-libav
   ];
 
   # YubiKey udev rules (FIDO2/U2F access for non-root)
