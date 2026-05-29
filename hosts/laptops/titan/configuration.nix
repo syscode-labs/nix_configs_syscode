@@ -144,7 +144,11 @@
 
   security.pam.u2f = {
     enable = true;
-    settings.cue = true;
+    control = "required"; # timeout/no-touch → deny, not fall-through
+    settings = {
+      cue = true;
+      pinverification = true; # prompt for FIDO2 PIN
+    };
   };
 
   security.pam.services.hyprlock = {
