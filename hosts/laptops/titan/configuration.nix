@@ -36,7 +36,9 @@
     timeout = 0;
   };
 
-  boot.plymouth.enable = true;
+  # Plymouth disabled: intercepts LUKS passphrase requests via Plymouth daemon,
+  # blocking the console dispatcher — fallback passphrase after FIDO2 timeout is never shown.
+  boot.plymouth.enable = false;
 
   # ── LUKS / FIDO2 ──────────────────────────────────────────────────────────
   # systemd stage-1 handles FIDO2 unlock (slot 3) via systemd-cryptenroll.
@@ -136,10 +138,7 @@
 
   security.pam.u2f = {
     enable = true;
-    control = "required"; # timeout/no-touch → deny, not fall-through
     settings.cue = true;
-    # pinverification requires: FIDO2 PIN set (ykman fido access change-pin)
-    # + credential re-enrolled with UV (pamu2fcfg -u giovanni --pin-verification)
   };
 
   security.pam.services.hyprlock = {
