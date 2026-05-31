@@ -38,15 +38,21 @@
 
   boot.plymouth.enable = true;
 
-  # ── LUKS / FIDO2 ──────────────────────────────────────────────────────────
-  # systemd stage-1 handles FIDO2 unlock (slot 3) via systemd-cryptenroll.
-  # Slot 2 is a plain recovery passphrase fallback.
+  # ── LUKS / FIDO2 (nested) ─────────────────────────────────────────────────
+  # Two-factor disk encryption: outer LUKS unlocked by FIDO2 (YubiKey touch),
+  # inner LUKS unlocked by passphrase.  Both must succeed to reach the OS.
+  # Outer slot 0: FIDO2, slot 1: recovery passphrase A (offline).
+  # Inner slot 0: passphrase, slot 1: recovery passphrase B (offline).
   # token-timeout=10: wait 10 s for the YubiKey before falling back to prompt.
   boot.initrd.systemd.enable = true;
-  boot.initrd.luks.devices."nixos-enc" = {
-    device = "/dev/nvme0n1p2";
-    preLVM = true;
-    crypttabExtraOpts = [ "fido2-device=auto" "token-timeout=10" ];
+  boot.initrd.luks.devices = {
+    "nixos-outer" = {
+      device = "/dev/nvme0n1p2";
+      crypttabExtraOpts = [ "fido2-device=auto" "token-timeout=10" ];
+    };
+    "nixos-inner" = {
+      device = "/dev/mapper/nixos-outer";
+    };
   };
 
   # ── Kernel crash dump ─────────────────────────────────────────────────────

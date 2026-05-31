@@ -9,13 +9,13 @@
   boot.extraModulePackages = [ ];
 
   fileSystems."/" = {
-    device = "/dev/disk/by-uuid/fa2652a6-e9bf-4913-82ba-58835656ffb9";
+    device = "/dev/disk/by-uuid/313f69ef-cb31-4bd9-8d77-d1ab21ce8e25";
     fsType = "btrfs";
     options = [ "compress=zstd" "subvol=/root" ];
   };
 
   fileSystems."/home" = {
-    device = "/dev/disk/by-uuid/fa2652a6-e9bf-4913-82ba-58835656ffb9";
+    device = "/dev/disk/by-uuid/313f69ef-cb31-4bd9-8d77-d1ab21ce8e25";
     fsType = "btrfs";
     options = [ "compress=zstd" "subvol=/home" ];
   };
@@ -26,7 +26,7 @@
   };
 
   swapDevices = [
-    { device = "/dev/disk/by-uuid/3d881b91-39f8-48d7-bc43-1cc5a5772c17"; }
+    { device = "/dev/disk/by-uuid/32602a39-df97-40fc-b2af-e49849e8af97"; }
   ];
 
   networking.useDHCP = lib.mkDefault true;
