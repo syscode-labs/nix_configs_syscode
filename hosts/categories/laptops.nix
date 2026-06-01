@@ -87,8 +87,28 @@
   services.udev.extraRules = ''
     KERNEL=="hidraw*", SUBSYSTEM=="hidraw", ATTRS{idVendor}=="1050", GROUP="plugdev", MODE="0660"
     ACTION=="add", SUBSYSTEM=="backlight", RUN+="${pkgs.coreutils}/bin/chgrp video /sys/class/backlight/%k/brightness", RUN+="${pkgs.coreutils}/bin/chmod g+w /sys/class/backlight/%k/brightness"
-    ACTION=="add", KERNEL=="BAT*", SUBSYSTEM=="power_supply", ATTR{charge_control_end_threshold}="80", RUN+="${pkgs.coreutils}/bin/chmod a+w /sys/class/power_supply/%k/charge_control_end_threshold"
   '';
+
+  # Set battery charge limit to 80% and make it writable for user toggle.
+  # Done via systemd rather than udev because the EC resets the threshold
+  # after the udev "add" event fires during boot.
+  systemd.services.battery-charge-threshold = {
+    description = "Set battery charge limit to 80%";
+    after = [ "systemd-udev-settle.service" ];
+    wantedBy = [ "multi-user.target" ];
+    path = [ pkgs.coreutils ];
+    script = ''
+      for bat in /sys/class/power_supply/BAT*; do
+        [ -f "$bat/charge_control_end_threshold" ] || continue
+        echo 80 > "$bat/charge_control_end_threshold"
+        chmod a+w "$bat/charge_control_end_threshold"
+      done
+    '';
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+    };
+  };
   users.groups.plugdev = { };
 
   # Laptop-specific services
