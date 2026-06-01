@@ -145,17 +145,42 @@
     settings.cue = true;
   };
 
+  # greetd and hyprlock require fingerprint then YubiKey touch — both mandatory.
+  # fprintAuth/u2fAuth shortcuts add each as "sufficient" (OR), so we use
+  # explicit rules for AND semantics: fingerprint must pass before YubiKey is checked.
   security.pam.services.hyprlock = {
-    fprintAuth = true;
-    u2fAuth = true;
+    fprintAuth = false;
+    u2fAuth = false;
+    rules.auth = {
+      fprint = {
+        order = 10200;
+        control = "[success=ok default=die]";
+        modulePath = "${pkgs.fprintd}/lib/security/pam_fprintd.so";
+      };
+      u2f = {
+        order = 10300;
+        control = "[success=done default=die]";
+        modulePath = "${pkgs.pam_u2f}/lib/security/pam_u2f.so";
+        args = [ "cue" ];
+      };
+    };
   };
   security.pam.services.greetd = {
-    fprintAuth = true;
-    u2fAuth = true;
-    # Without this override, greetd's PAM stack sets try_first_pass on pam_unix,
-    # which causes it to replay a cached (wrong) password on retry instead of
-    # prompting fresh. Disabling forces a new password prompt each time.
-    rules.auth.unix.settings.try_first_pass = lib.mkForce false;
+    fprintAuth = false;
+    u2fAuth = false;
+    rules.auth = {
+      fprint = {
+        order = 10200;
+        control = "[success=ok default=die]";
+        modulePath = "${pkgs.fprintd}/lib/security/pam_fprintd.so";
+      };
+      u2f = {
+        order = 10300;
+        control = "[success=done default=die]";
+        modulePath = "${pkgs.pam_u2f}/lib/security/pam_u2f.so";
+        args = [ "cue" ];
+      };
+    };
   };
 
   # ── Sound ─────────────────────────────────────────────────────────────────
