@@ -97,7 +97,7 @@
     brightnessctl
 
     # Polkit agent
-    polkit_gnome
+    hyprpolkitagent
 
     # Blue light filter
     hyprsunset
@@ -375,7 +375,7 @@
             "hypridle"
             "hyprsunset"
             "swayosd-server"
-            "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"
+            "systemctl --user start hyprpolkitagent"
           ];
 
           exec = [
