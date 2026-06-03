@@ -16,6 +16,9 @@
 
     # Rate limiting for SSH (when opened via knock)
     extraCommands = ''
+      # Exempt LAN and Tailscale from SSH rate limiting
+      iptables -A INPUT -p tcp --dport 22 -s 10.10.210.0/23 -j ACCEPT
+      iptables -A INPUT -p tcp --dport 22 -s 100.64.0.0/10 -j ACCEPT
       # Rate limit SSH connections to prevent brute force
       iptables -A INPUT -p tcp --dport 22 -m state --state NEW -m recent --set
       iptables -A INPUT -p tcp --dport 22 -m state --state NEW -m recent --update --seconds 60 --hitcount 4 -j DROP
@@ -29,6 +32,7 @@
     bantime = "24h";
     ignoreIP = [
       "127.0.0.1/8"
+      "10.10.210.0/23" # LAN
       "100.64.0.0/10" # Tailscale CGNAT range
     ];
   };
