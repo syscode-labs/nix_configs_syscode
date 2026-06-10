@@ -18,9 +18,11 @@
   nixpkgs.config.permittedInsecurePackages = [
     "broadcom-sta-6.30.223.271-59-6.12.62"
   ];
-  boot.kernelModules = [ "wl" ];
+  boot.kernelModules = [ "wl" "thunderbolt" "tg3" ];
   boot.extraModulePackages = [ config.boot.kernelPackages.broadcom_sta ];
   boot.blacklistedKernelModules = [ "bcma" "brcmsmac" ];
+
+  services.hardware.bolt.enable = true;
 
   # Keep the old MacBook awake when it is on AC power.
   services.logind.settings.Login = {
@@ -29,21 +31,38 @@
     IdleAction = "ignore";
   };
 
-  # The Thunderbolt Ethernet adapter can prevent MacBookPro11,1 suspend/resume.
-  # Take the wired interface down only for the sleep window; keep lid wake active.
+  # MacBookPro11,1 Thunderbolt Ethernet uses tg3. Treat suspend as a software
+  # detach/reattach boundary so the adapter remains usable without keeping the
+  # Thunderbolt NIC active through S3.
   powerManagement.powerDownCommands = ''
-    if [ -e /sys/class/net/ens9 ]; then
-      ${pkgs.iproute2}/bin/ip link set ens9 down || true
-    fi
+    for dev in /sys/class/net/*; do
+      [ -e "$dev" ] || continue
+      iface="''${dev##*/}"
+      driver="$(${pkgs.coreutils}/bin/readlink -f "$dev/device/driver" 2>/dev/null || true)"
+      if [ "''${driver##*/}" = tg3 ]; then
+        ${pkgs.networkmanager}/bin/nmcli device disconnect "$iface" || true
+        ${pkgs.iproute2}/bin/ip link set "$iface" down || true
+      fi
+    done
+    ${pkgs.kmod}/bin/modprobe -r tg3 || true
+
     if ${pkgs.gawk}/bin/awk '$1 == "XHC1" && $3 == "*enabled" { found = 1 } END { exit !found }' /proc/acpi/wakeup; then
       echo XHC1 > /proc/acpi/wakeup
     fi
   '';
   powerManagement.resumeCommands = ''
-    if [ -e /sys/class/net/ens9 ]; then
-      ${pkgs.iproute2}/bin/ip link set ens9 up || true
-      ${pkgs.networkmanager}/bin/nmcli device connect ens9 || true
-    fi
+    ${pkgs.kmod}/bin/modprobe tg3 || true
+    ${pkgs.coreutils}/bin/sleep 2
+
+    for dev in /sys/class/net/*; do
+      [ -e "$dev" ] || continue
+      iface="''${dev##*/}"
+      driver="$(${pkgs.coreutils}/bin/readlink -f "$dev/device/driver" 2>/dev/null || true)"
+      if [ "''${driver##*/}" = tg3 ]; then
+        ${pkgs.iproute2}/bin/ip link set "$iface" up || true
+        ${pkgs.networkmanager}/bin/nmcli device connect "$iface" || true
+      fi
+    done
   '';
 
   home-manager.users.giovanni.wayland.windowManager.hyprland.settings.monitor =

@@ -171,6 +171,13 @@
           extraModules = [ nixos-hardware.nixosModules.framework-13-7040-amd ];
         };
 
+        nyx = mkHost {
+          hostname = "nyx";
+          category = "laptops";
+          system = "x86_64-linux";
+          extraModules = [ nixos-hardware.nixosModules.apple-t2 ];
+        };
+
         # === LAPTOPS (ARM - Apple Silicon example) ===
         # Uncomment when you have ARM laptops
         # macbook = mkHost {
