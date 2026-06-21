@@ -28,14 +28,46 @@ switch-mac host="bit":
 
 # Deploy to a specific host
 deploy host:
-    deploy .#{{host}}
+    #!/usr/bin/env bash
+    set -euo pipefail
+    host="{{host}}"
+    remote_path="${REMOTE_PATH:-/tmp/nix_configs_syscode-deploy-{{host}}}"
+    target="$host"
+    if [ -x /Applications/Tailscale.app/Contents/MacOS/Tailscale ]; then
+      lan_ip=$(/Applications/Tailscale.app/Contents/MacOS/Tailscale status --json 2>/dev/null \
+        | jq -r --arg host "$host" '.Peer[]? | select(.HostName == $host) | .CurAddr // ""' \
+        | sed -n 's/^\([0-9.]*\):[0-9]*$/\1/p' \
+        | head -n1 || true)
+      if [ -n "$lan_ip" ]; then
+        target="$lan_ip"
+      fi
+      tailscale_ip=$(/Applications/Tailscale.app/Contents/MacOS/Tailscale ip -4 "$host" 2>/dev/null | head -n1 || true)
+      if [ "$target" = "$host" ] && [ -n "$tailscale_ip" ]; then
+        target="$tailscale_ip"
+      fi
+    fi
+    ssh_cmd="ssh -o HostKeyAlias=$host -o ConnectTimeout=10"
+    if [ -f "$HOME/.ssh/personal-nw7" ]; then
+      ssh_cmd="$ssh_cmd -o IdentitiesOnly=yes -i $HOME/.ssh/personal-nw7"
+    fi
+    echo "Syncing repository to ${host}:${remote_path}"
+    $ssh_cmd "$target" "mkdir -p '${remote_path}'"
+    rsync -az --delete \
+      --exclude .git \
+      --exclude .direnv \
+      --exclude result \
+      --exclude result-1 \
+      -e "$ssh_cmd" \
+      ./ "${target}:${remote_path}/"
+    echo "Switching ${host} from ${remote_path}"
+    $ssh_cmd "$target" "cd '${remote_path}' && sudo nixos-rebuild switch --flake .#${host}"
 
 # Deploy to all hosts
 deploy-all:
     #!/usr/bin/env bash
     for host in bit spark hermes vps-alpha server-alpha; do
         echo "Deploying to $host..."
-        deploy ".#$host"
+        just deploy "$host"
     done
 
 # Install new host (fully automated, zero manual steps)
@@ -237,7 +269,7 @@ install host category ip:
 
     # Deploy
     echo "[11/11] Deploying full configuration..."
-    deploy ".#{{host}}"
+    just deploy "{{host}}"
 
     # Cleanup
     rm -rf ".bootstrap-temp/{{host}}"
@@ -251,7 +283,7 @@ install host category ip:
 # Pull changes from git and deploy
 pull-deploy host:
     git pull
-    deploy .#{{host}}
+    just deploy {{host}}
 
 # Sync changes from remote host to local repo
 sync-remote host:
@@ -359,7 +391,39 @@ build host:
 
 # Show what would be deployed (dry run)
 dry-run host:
-    deploy .#{{host}} --dry-activate
+    #!/usr/bin/env bash
+    set -euo pipefail
+    host="{{host}}"
+    remote_path="${REMOTE_PATH:-/tmp/nix_configs_syscode-deploy-{{host}}}"
+    target="$host"
+    if [ -x /Applications/Tailscale.app/Contents/MacOS/Tailscale ]; then
+      lan_ip=$(/Applications/Tailscale.app/Contents/MacOS/Tailscale status --json 2>/dev/null \
+        | jq -r --arg host "$host" '.Peer[]? | select(.HostName == $host) | .CurAddr // ""' \
+        | sed -n 's/^\([0-9.]*\):[0-9]*$/\1/p' \
+        | head -n1 || true)
+      if [ -n "$lan_ip" ]; then
+        target="$lan_ip"
+      fi
+      tailscale_ip=$(/Applications/Tailscale.app/Contents/MacOS/Tailscale ip -4 "$host" 2>/dev/null | head -n1 || true)
+      if [ "$target" = "$host" ] && [ -n "$tailscale_ip" ]; then
+        target="$tailscale_ip"
+      fi
+    fi
+    ssh_cmd="ssh -o HostKeyAlias=$host -o ConnectTimeout=10"
+    if [ -f "$HOME/.ssh/personal-nw7" ]; then
+      ssh_cmd="$ssh_cmd -o IdentitiesOnly=yes -i $HOME/.ssh/personal-nw7"
+    fi
+    echo "Syncing repository to ${host}:${remote_path}"
+    $ssh_cmd "$target" "mkdir -p '${remote_path}'"
+    rsync -az --delete \
+      --exclude .git \
+      --exclude .direnv \
+      --exclude result \
+      --exclude result-1 \
+      -e "$ssh_cmd" \
+      ./ "${target}:${remote_path}/"
+    echo "Dry-activating ${host} from ${remote_path}"
+    $ssh_cmd "$target" "cd '${remote_path}' && sudo nixos-rebuild dry-activate --flake .#${host}"
 
 # Initialize git repository
 git-init:

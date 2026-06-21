@@ -33,6 +33,12 @@ in
 
   sops.secrets.tailscale_oauth_secret = { };
   sops.secrets.giovanni_hashed_password = { neededForUsers = true; };
+  sops.secrets.smb_bit_downloads_credentials = {
+    sopsFile = ../../secrets/laptops/smb.yaml;
+    mode = "0400";
+    owner = "root";
+    group = "root";
+  };
   sops.secrets.fail2ban_nix_laptops_ignore_jail = {
     path = "/etc/fail2ban/jail.d/99-nix-laptops-ignore.local";
     mode = "0440";
@@ -42,6 +48,9 @@ in
   systemd.tmpfiles.rules = [
     "d /etc/fail2ban/jail.d 0755 root root -"
   ];
+
+  # Required by Nautilus/Files for remote locations such as smb:// shares.
+  services.gvfs.enable = true;
 
   # Ensure the encrypted password is actually written for existing users.
   users.mutableUsers = false;
@@ -59,7 +68,42 @@ in
     ];
   };
 
-  environment.systemPackages = [ carveraController ];
+  environment.systemPackages = [
+    carveraController
+    pkgs.cifs-utils
+    pkgs.glib
+  ];
+
+  fileSystems."/mnt/bit/giovanni" = {
+    device = "//bit/giovanni";
+    fsType = "cifs";
+    options = [
+      "credentials=${config.sops.secrets.smb_bit_downloads_credentials.path}"
+      "uid=1000"
+      "gid=100"
+      "file_mode=0600"
+      "dir_mode=0700"
+      "iocharset=utf8"
+      "vers=3.0"
+      "mfsymlinks"
+      "noserverino"
+      "_netdev"
+      "noauto"
+      "x-systemd.automount"
+      "x-systemd.requires=tailscaled.service"
+      "x-systemd.after=tailscaled.service"
+      "nofail"
+    ];
+  };
+
+  home-manager.users.giovanni.xdg.configFile = {
+    "gtk-3.0/bookmarks".text = ''
+      file:///mnt/bit/giovanni bit/giovanni
+    '';
+    "gtk-4.0/bookmarks".text = ''
+      file:///mnt/bit/giovanni bit/giovanni
+    '';
+  };
 
   # Carvera CNC controller USB access
   services.udev.extraRules = ''

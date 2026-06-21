@@ -14,28 +14,29 @@
     logRefusedConnections = true;
     logRefusedPackets = false; # Reduce spam
 
-    # Rate limiting for SSH (when opened via knock)
-    extraCommands = ''
-      # Exempt LAN and Tailscale from SSH rate limiting
-      iptables -A INPUT -p tcp --dport 22 -s 10.10.210.0/23 -j ACCEPT
-      iptables -A INPUT -p tcp --dport 22 -s 100.64.0.0/10 -j ACCEPT
-      # Rate limit SSH connections to prevent brute force
-      iptables -A INPUT -p tcp --dport 22 -m state --state NEW -m recent --set
-      iptables -A INPUT -p tcp --dport 22 -m state --state NEW -m recent --update --seconds 60 --hitcount 4 -j DROP
-    '';
+    # SSH abuse handling is delegated to fail2ban. Avoid iptables recent-based
+    # rate limiting here because it can lock out trusted LAN/Tailscale clients
+    # before fail2ban's ignore list gets a say.
   };
 
   # Fail2ban for additional protection
   services.fail2ban = {
     enable = true;
-    maxretry = 3;
-    bantime = "24h";
+    maxretry = 10;
+    bantime = "1h";
     ignoreIP = [
       "127.0.0.1/8"
+      "::1"
       "10.10.210.0/23" # LAN
+      "fdcf:e578:c293::/64" # LAN IPv6
       "100.64.0.0/10" # Tailscale CGNAT range
+      "fd7a:115c:a1e0::/48" # Tailscale IPv6 range
     ];
   };
+
+  systemd.services.fail2ban.serviceConfig.ExecStartPost = pkgs.writeShellScript "fail2ban-clear-stale-bans" ''
+    ${pkgs.fail2ban}/bin/fail2ban-client unban --all || true
+  '';
 
   # SSH hardening
   services.openssh = {
@@ -45,7 +46,7 @@
       PasswordAuthentication = false;
       KbdInteractiveAuthentication = false;
       X11Forwarding = false;
-      MaxAuthTries = 3;
+      MaxAuthTries = 6;
     };
 
     # Use stronger algorithms
