@@ -21,4 +21,23 @@
 
   # Neovim is intentionally owned by NixVim on Darwin.
   xdg.configFile."nvim/init.lua".force = true;
+
+  # SSH base config — nix owns the skeleton; host entries live in
+  # ~/.ssh/config.d/hosts managed by chezmoi (sensitive, not in repo).
+  programs.ssh = {
+    enable = true;
+    enableDefaultConfig = false;
+    # OrbStack must come first (before any Host blocks).
+    includes = [
+      "~/.orbstack/ssh/config"
+      "~/.ssh/config.d/*"
+      "~/.config/devbox/ssh/config"
+    ];
+    matchBlocks."*" = {
+      extraOptions = {
+        AddKeysToAgent = "yes";
+        IdentityAgent = "~/.bitwarden-ssh-agent.sock";
+      };
+    };
+  };
 }
