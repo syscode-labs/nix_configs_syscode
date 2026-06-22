@@ -328,7 +328,7 @@ in
   };
 
   # ── Security ──────────────────────────────────────────────────────────────
-  security.pam.enableSudoTouchIdAuth = true;
+  security.pam.services.sudo_local.touchIdAuth = true;
 
   # ── User ──────────────────────────────────────────────────────────────────
   users.users.${userName} = {
