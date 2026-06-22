@@ -271,7 +271,7 @@ See `docs/STRUCTURE_OVERVIEW.md` for architecture details.
 - **Pre-commit hooks** validate Nix files and scan for secrets before commits
 - **GitHub Actions CI** runs `mise` tasks for validation/security on every push
 - **detect-secrets** scans for accidentally committed secrets
-- **gitleaks** scans git history for leaked secrets (pre-commit hook + GitHub Actions CI)
+- **trufflehog** scans git history for verified leaked secrets (GitHub Actions CI)
 - **sops-nix** integration with GPG + age for encrypted secrets management
 - **Tailscale mesh VPN** with OAuth-based per-machine key generation
 - **Port knocking** for SSH access on VPS hosts
