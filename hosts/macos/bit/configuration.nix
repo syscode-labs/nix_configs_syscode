@@ -1,5 +1,54 @@
-{ pkgs, userName, ... }:
+{ config, lib, pkgs, userName, ... }:
 
+let
+  homebrewTaps = [
+    "bufbuild/buf"
+    "cloudflare/cloudflare"
+    "common-fate/granted"
+    "datreeio/datree"
+    "derailed/k9s"
+    "dhth/tap"
+    "fielding/tap"
+    "gcenx/wine"
+    "git-chglog/git-chglog"
+    "gromgit/fuse"
+    "hidetatz/tap"
+    "homebrew/cask"
+    "homebrew/cask-fonts"
+    "homebrew/cask-versions"
+    "homebrew/core"
+    "homebrew/services"
+    "johanhaleby/kubetail"
+    "kdash-rs/kdash"
+    "ksonnet/tap"
+    "lance0/tap"
+    "liamg/tfsec"
+    "manaflow-ai/cmux"
+    "marcus/tap"
+    "mengbo/ch340g-ch34g-ch34x-mac-os-x-driver"
+    "mistertea/et"
+    "one2nc/cloudlens"
+    "osx-cross/arm"
+    "osx-cross/avr"
+    "qmk/qmk"
+    "rhyeal/aws-rotate-iam-keys"
+    "robscott/tap"
+    "sheerun/git-squash"
+    "siderolabs/tap"
+    "slp/krun"
+    "snyk/tap"
+    "sonatype-nexus-community/nancy-tap"
+    "specstoryai/tap"
+    "synfinatic/aws-sso-cli"
+    "thefox/brewery"
+    "wagoodman/dive"
+    "wallix/awless"
+    "warrensbox/tap"
+    "weaveworks/tap"
+  ];
+  trustedHomebrewTaps =
+    lib.filter (tap: !(lib.hasPrefix "homebrew/" tap)) homebrewTaps;
+in
 {
   networking.hostName = "bit";
   networking.computerName = "bit";
@@ -38,51 +87,7 @@
       upgrade = false;
     };
 
-    taps = [
-      "bufbuild/buf"
-      "cloudflare/cloudflare"
-      "common-fate/granted"
-      "datreeio/datree"
-      "derailed/k9s"
-      "dhth/tap"
-      "fielding/tap"
-      "gcenx/wine"
-      "git-chglog/git-chglog"
-      "gromgit/fuse"
-      "hidetatz/tap"
-      "homebrew/cask"
-      "homebrew/cask-fonts"
-      "homebrew/cask-versions"
-      "homebrew/core"
-      "homebrew/services"
-      "johanhaleby/kubetail"
-      "kdash-rs/kdash"
-      "ksonnet/tap"
-      "lance0/tap"
-      "liamg/tfsec"
-      "manaflow-ai/cmux"
-      "marcus/tap"
-      "mengbo/ch340g-ch34g-ch34x-mac-os-x-driver"
-      "mistertea/et"
-      "one2nc/cloudlens"
-      "osx-cross/arm"
-      "osx-cross/avr"
-      "qmk/qmk"
-      "rhyeal/aws-rotate-iam-keys"
-      "robscott/tap"
-      "sheerun/git-squash"
-      "siderolabs/tap"
-      "slp/krun"
-      "snyk/tap"
-      "sonatype-nexus-community/nancy-tap"
-      "specstoryai/tap"
-      "synfinatic/aws-sso-cli"
-      "thefox/brewery"
-      "wagoodman/dive"
-      "wallix/awless"
-      "warrensbox/tap"
-      "weaveworks/tap"
-    ];
+    taps = homebrewTaps;
 
     brews = [
       # ── From homebrew/core ───────────────────────────────────────────────
@@ -165,11 +170,9 @@
       "libgit2"
       "libvirt"
       "macchina"
-      "macvim"
       "maven"
       "mintoolkit"
       "mosquitto"
-      "neovim"
       "nmap"
       "nuget"
       "oci-cli"
@@ -269,7 +272,6 @@
       "lens"
       "logi-options+"
       "macfuse"
-      "macvim-app"
       "microsoft-remote-desktop"
       "multipass"
       "ngrok"
@@ -284,6 +286,18 @@
       "yubico-yubikey-manager"
     ];
   };
+
+  system.activationScripts.homebrew.text = lib.mkBefore ''
+    # Trust declared third-party Homebrew taps before brew bundle evaluates
+    # their formulae. Homebrew requires this for non-core formula installs.
+    if [ -x "${config.homebrew.prefix}/bin/brew" ]; then
+      echo >&2 "Trusting declared Homebrew taps..."
+      ${lib.concatMapStringsSep "\n" (tap: ''
+        sudo --preserve-env=PATH --user=${lib.escapeShellArg userName} --set-home \
+          "${config.homebrew.prefix}/bin/brew" trust ${lib.escapeShellArg tap} >/dev/null
+      '') trustedHomebrewTaps}
+    fi
+  '';
 
   # ── macOS system defaults ─────────────────────────────────────────────────
   system.defaults = {
@@ -312,6 +326,9 @@
       TrackpadThreeFingerDrag = true;
     };
   };
+
+  # ── Security ──────────────────────────────────────────────────────────────
+  security.pam.enableSudoTouchIdAuth = true;
 
   # ── User ──────────────────────────────────────────────────────────────────
   users.users.${userName} = {

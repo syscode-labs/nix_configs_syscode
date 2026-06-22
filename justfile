@@ -24,7 +24,13 @@ update:
 
 # Apply nix-darwin configuration on this Mac
 switch-mac host="bit":
-    /run/current-system/sw/bin/darwin-rebuild switch --flake .#{{host}}
+    #!/usr/bin/env bash
+    set -euo pipefail
+    export LANG=en_GB.UTF-8
+    export LC_ALL=en_GB.UTF-8
+
+    echo "Applying nix-darwin configuration: {{host}}"
+    sudo --preserve-env=LANG,LC_ALL /run/current-system/sw/bin/darwin-rebuild switch --flake .#{{host}}
 
 # Deploy to a specific host
 deploy host:

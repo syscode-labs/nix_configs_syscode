@@ -119,6 +119,18 @@
           };
           modules = [
             ./hosts/macos/${hostname}/configuration.nix
+            home-manager.darwinModules.home-manager
+            {
+              home-manager.useGlobalPkgs = true;
+              home-manager.useUserPackages = true;
+              home-manager.extraSpecialArgs = {
+                inherit userName userGitName userGitEmail;
+              };
+              home-manager.users.${userName} = import ./modules/users/darwin.nix;
+              home-manager.sharedModules = [
+                nixvim.homeModules.nixvim
+              ];
+            }
           ] ++ extraModules;
         };
 

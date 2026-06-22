@@ -12,6 +12,7 @@ let
 in
 {
   imports = [
+    ./neovim
     ./packages
     ./runtimes-mise.nix
   ];
@@ -20,6 +21,10 @@ in
   # This can be overridden per-host if needed
   home.username = lib.mkDefault userName;
   home.homeDirectory = lib.mkDefault homeDirDefault;
+  home.sessionVariables = {
+    EDITOR = "nvim";
+    VISUAL = "nvim";
+  };
 
   # Git configuration
   programs.git = {
@@ -56,6 +61,10 @@ in
   # interactiveShellInit is intentionally absent: chezmoi's config.fish owns it.
   programs.fish = {
     enable = true;
+    shellInitLast = ''
+      set -gx EDITOR nvim
+      set -gx VISUAL nvim
+    '';
     plugins = [
       { name = "done"; src = pkgs.fishPlugins.done.src; }
       { name = "sponge"; src = pkgs.fishPlugins.sponge.src; }

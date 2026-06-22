@@ -1,11 +1,10 @@
-{ pkgs, ... }:
+{ lib, pkgs, ... }:
 
 {
   # Core user-facing CLI utilities.
   home.packages = with pkgs; [
     age
     bat
-    bitwarden-cli
     chezmoi
     delta
     eza
@@ -15,5 +14,7 @@
     pay-respects
     starship
     zoxide
+  ] ++ lib.optionals (!pkgs.stdenv.isDarwin) [
+    bitwarden-cli
   ];
 }

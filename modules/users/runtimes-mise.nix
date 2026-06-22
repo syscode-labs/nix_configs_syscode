@@ -12,7 +12,6 @@ let
     kubectl = "1.35.2";
     kubectx = "0.9.4";
     minikube = "1.37.0";
-    neovim = "stable";
     node = "23.9.0";
     opentofu = "1.11.5";
     packer = "1.15.0";
@@ -41,10 +40,13 @@ in
     ln -sf ${pkgs.mise}/bin/mise "$HOME/.local/bin/mise"
   '';
 
-  xdg.configFile."mise/config.toml".text = lib.concatStringsSep "\n"
-    (
-      [ "[tools]" ]
-        ++ map (name: "${name} = \"${runtimeTools.${name}}\"")
-        (builtins.attrNames runtimeTools)
-    ) + "\n";
+  xdg.configFile."mise/config.toml" = {
+    force = true;
+    text = lib.concatStringsSep "\n"
+      (
+        [ "[tools]" ]
+          ++ map (name: "${name} = \"${runtimeTools.${name}}\"")
+          (builtins.attrNames runtimeTools)
+      ) + "\n";
+  };
 }
