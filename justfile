@@ -22,6 +22,14 @@ update:
     nix flake update
     @echo "Flake inputs updated. Review flake.lock and commit."
 
+# Show drift between live Homebrew state and nix-darwin declarations
+brew-audit:
+    python3 scripts/brew-sync.py
+
+# Import brew leaves/casks missing from nix-darwin declarations into the nix config
+brew-import:
+    python3 scripts/brew-sync.py --import
+
 # Apply nix-darwin configuration on this Mac
 switch-mac host="bit":
     #!/usr/bin/env bash

@@ -253,6 +253,14 @@ in
       "snyk" # snyk/tap
       "specstory" # specstoryai/tap
       "sshfs-mac" # gromgit/fuse
+      "grpcurl"
+      "gtk+3"
+      "hunk"
+      "mist-cli"
+      "ncdu"
+      "rtk"
+      "terraform"
+      "trailscraper"
     ];
 
     casks = [
@@ -284,6 +292,9 @@ in
       "wch-ch34x-usb-serial-driver"
       "xbar"
       "yubico-yubikey-manager"
+      "adoptopenjdk8"
+      "aws-vault"
+      "osxfuse"
     ];
   };
 
