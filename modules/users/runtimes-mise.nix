@@ -25,6 +25,7 @@ let
     tmux = "3.6a";
     trivy = "0.69.3";
     yq = "4.52.4";
+    "npm:@openai/codex" = "0.137.0";
   };
 in
 {
@@ -45,8 +46,20 @@ in
     text = lib.concatStringsSep "\n"
       (
         [ "[tools]" ]
-          ++ map (name: "${name} = \"${runtimeTools.${name}}\"")
+          ++ map
+          (name:
+            let
+              quotedName =
+                if builtins.match ".*[^a-zA-Z0-9_-].*" name != null
+                then "\"${name}\"" else name;
+            in
+            "${quotedName} = \"${runtimeTools.${name}}\"")
           (builtins.attrNames runtimeTools)
       ) + "\n";
   };
+
+  # Install all mise-managed tools automatically on darwin-rebuild switch.
+  home.activation.miseInstall = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    ${pkgs.mise}/bin/mise install --quiet 2>/dev/null || true
+  '';
 }
